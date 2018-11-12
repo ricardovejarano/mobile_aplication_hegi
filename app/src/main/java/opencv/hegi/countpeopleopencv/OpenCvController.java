@@ -36,17 +36,8 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     private static final String    TAG                 = "OCVSample::Activity";
     private static final Scalar    FACE_RECT_COLOR     = new Scalar(0, 255, 0, 255);
     public static final int        JAVA_DETECTOR       = 0;
-    private static final int TM_SQDIFF = 0;
-    private static final int TM_SQDIFF_NORMED = 1;
-    private static final int TM_CCOEFF = 2;
-    private static final int TM_CCOEFF_NORMED = 3;
-    private static final int TM_CCORR = 4;
-    private static final int TM_CCORR_NORMED = 5;
-
-
     private int learn_frames = 0;
-    private Mat teplateR;
-    private Mat teplateL;
+
     int method = 0;
 
     // matrix for zooming
@@ -101,34 +92,13 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                         is.close();
                         os.close();
 
-                        // load cascade file from application resources
-                        InputStream ise = getResources().openRawResource(R.raw.haarcascade_lefteye_2splits);
-                        File cascadeDirEye = getDir("cascade", Context.MODE_PRIVATE);
-                        mCascadeFileEye = new File(cascadeDirEye, "haarcascade_lefteye_2splits.xml");
-                        FileOutputStream ose = new FileOutputStream(mCascadeFileEye);
-
-                        while ((bytesRead = ise.read(buffer)) != -1) {
-                            ose.write(buffer, 0, bytesRead);
-                        }
-                        ise.close();
-                        ose.close();
-
                         mJavaDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
                         if (mJavaDetector.empty()) {
                             Log.e(TAG, "Failed to load cascade classifier");
                             mJavaDetector = null;
                         } else
                             Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
-
-                        mJavaDetectorEye = new CascadeClassifier(mCascadeFileEye.getAbsolutePath());
-                        if (mJavaDetectorEye.empty()) {
-                            Log.e(TAG, "Failed to load cascade classifier for eye");
-                            mJavaDetectorEye = null;
-                        } else
-                            Log.i(TAG, "Loaded cascade classifier from " + mCascadeFileEye.getAbsolutePath());
-
                         cascadeDir.delete();
-                        cascadeDirEye.delete();
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -217,8 +187,6 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
         }
 
-        if (mZoomWindow == null || mZoomWindow2 == null)
-            CreateAuxiliaryMats();
 
         MatOfRect faces = new MatOfRect();
 
@@ -265,27 +233,6 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                     new Scalar(255, 0, 0, 255), 2);
             Imgproc.rectangle(mRgba, eyearea_right.tl(), eyearea_right.br(),
                     new Scalar(255, 0, 0, 255), 2);
-
-            if (learn_frames < 5) {
-                teplateR = get_template(mJavaDetectorEye, eyearea_right, 24);
-                teplateL = get_template(mJavaDetectorEye, eyearea_left, 24);
-                learn_frames++;
-            } else {
-                // Learning finished, use the new templates for template
-                // matching
-                match_eye(eyearea_right, teplateR, method);
-                match_eye(eyearea_left, teplateL, method);
-
-            }
-
-/*
-            // cut eye areas and put them to zoom windows
-            Imgproc.resize(mRgba.submat(eyearea_left), mZoomWindow2,
-                    mZoomWindow2.size());
-            Imgproc.resize(mRgba.submat(eyearea_right), mZoomWindow,
-                    mZoomWindow.size());
-*/
-
         }
 
         return mRgba;
@@ -319,117 +266,6 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     private void setMinFaceSize(float faceSize) {
         mRelativeFaceSize = faceSize;
         mAbsoluteFaceSize = 0;
-    }
-
-    // Crear matrices ZOOMING
-    private void CreateAuxiliaryMats() {
-        if (mGray.empty())
-            return;
-
-        int rows = mGray.rows();
-        int cols = mGray.cols();
-
-        if (mZoomWindow == null) {
-            mZoomWindow = mRgba.submat(rows / 2 + rows / 10, rows, cols / 2
-                    + cols / 10, cols);
-            mZoomWindow2 = mRgba.submat(0, rows / 2 - rows / 10, cols / 2
-                    + cols / 10, cols);
-        }
-
-    }
-
-    private void match_eye(Rect area, Mat mTemplate, int type) {
-        Point matchLoc;
-        Mat mROI = mGray.submat(area);
-        int result_cols = mROI.cols() - mTemplate.cols() + 1;
-        int result_rows = mROI.rows() - mTemplate.rows() + 1;
-        // Check for bad template size
-        if (mTemplate.cols() == 0 || mTemplate.rows() == 0) {
-            return ;
-        }
-        Mat mResult = new Mat(result_cols, result_rows, CvType.CV_8U);
-
-        switch (type) {
-            case TM_SQDIFF:
-                Imgproc.matchTemplate(mROI, mTemplate, mResult, Imgproc.TM_SQDIFF);
-                break;
-            case TM_SQDIFF_NORMED:
-                Imgproc.matchTemplate(mROI, mTemplate, mResult,
-                        Imgproc.TM_SQDIFF_NORMED);
-                break;
-            case TM_CCOEFF:
-                Imgproc.matchTemplate(mROI, mTemplate, mResult, Imgproc.TM_CCOEFF);
-                break;
-            case TM_CCOEFF_NORMED:
-                Imgproc.matchTemplate(mROI, mTemplate, mResult,
-                        Imgproc.TM_CCOEFF_NORMED);
-                break;
-            case TM_CCORR:
-                Imgproc.matchTemplate(mROI, mTemplate, mResult, Imgproc.TM_CCORR);
-                break;
-            case TM_CCORR_NORMED:
-                Imgproc.matchTemplate(mROI, mTemplate, mResult,
-                        Imgproc.TM_CCORR_NORMED);
-                break;
-        }
-
-        Core.MinMaxLocResult mmres = Core.minMaxLoc(mResult);
-        // there is difference in matching methods - best match is max/min value
-        if (type == TM_SQDIFF || type == TM_SQDIFF_NORMED) {
-            matchLoc = mmres.minLoc;
-        } else {
-            matchLoc = mmres.maxLoc;
-        }
-
-        Point matchLoc_tx = new Point(matchLoc.x + area.x, matchLoc.y + area.y);
-        Point matchLoc_ty = new Point(matchLoc.x + mTemplate.cols() + area.x,
-                matchLoc.y + mTemplate.rows() + area.y);
-
-        Imgproc.rectangle(mRgba, matchLoc_tx, matchLoc_ty, new Scalar(255, 255, 0,
-                255));
-        Rect rec = new Rect(matchLoc_tx,matchLoc_ty);
-
-
-    }
-
-    // Se crea el template para los clasificadores de ojos
-    private Mat get_template(CascadeClassifier clasificator, Rect area, int size) {
-        Mat template = new Mat();
-        //  submat extracts a rectangular submatrix.
-        Mat mROI = mGray.submat(area);
-        MatOfRect eyes = new MatOfRect();
-        Point iris = new Point();
-        Rect eye_template = new Rect();
-        clasificator.detectMultiScale(mROI, eyes, 1.15, 2,
-                Objdetect.CASCADE_FIND_BIGGEST_OBJECT
-                        | Objdetect.CASCADE_SCALE_IMAGE, new Size(30, 30),
-                new Size());
-
-        Rect[] eyesArray = eyes.toArray();
-        for (int i = 0; i < eyesArray.length;) {
-            Rect e = eyesArray[i];
-            e.x = area.x + e.x;
-            e.y = area.y + e.y;
-            Rect eye_only_rectangle = new Rect((int) e.tl().x,
-                    (int) (e.tl().y + e.height * 0.4), (int) e.width,
-                    (int) (e.height * 0.6));
-            mROI = mGray.submat(eye_only_rectangle);
-            Mat vyrez = mRgba.submat(eye_only_rectangle);
-
-
-            Core.MinMaxLocResult mmG = Core.minMaxLoc(mROI);
-
-            Imgproc.circle(vyrez, mmG.minLoc, 2, new Scalar(255, 255, 255, 255), 2);
-            iris.x = mmG.minLoc.x + eye_only_rectangle.x;
-            iris.y = mmG.minLoc.y + eye_only_rectangle.y;
-            eye_template = new Rect((int) iris.x - size / 2, (int) iris.y
-                    - size / 2, size, size);
-            Imgproc.rectangle(mRgba, eye_template.tl(), eye_template.br(),
-                    new Scalar(255, 0, 0, 255), 2);
-            template = (mGray.submat(eye_template)).clone();
-            return template;
-        }
-        return template;
     }
 
     public void onRecreateClick(View v)
