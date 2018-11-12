@@ -74,8 +74,6 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     private int mAbsoluteFaceSize = 0;
 
     private CameraBridgeViewBase   mOpenCvCameraView;
-    private SeekBar mMethodSeekbar;
-    private TextView mValue;
 
     double xCenter = -1;
     double yCenter = -1;
@@ -137,7 +135,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                         Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
                     }
                     mOpenCvCameraView.enableFpsMeter();
-                    mOpenCvCameraView.setCameraIndex(1);
+                    mOpenCvCameraView.setCameraIndex(0);
                     mOpenCvCameraView.enableView();
                 } break;
                 default:
@@ -166,55 +164,6 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.fd_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
-
-        mMethodSeekbar = (SeekBar) findViewById(R.id.methodSeekBar);
-        mValue = (TextView) findViewById(R.id.method);
-
-        mMethodSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar)
-            {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress,
-                                          boolean fromUser)
-            {
-                method = progress;
-                switch (method) {
-                    case 0:
-                        mValue.setText("TM_SQDIFF");
-                        break;
-                    case 1:
-                        mValue.setText("TM_SQDIFF_NORMED");
-                        break;
-                    case 2:
-                        mValue.setText("TM_CCOEFF");
-                        break;
-                    case 3:
-                        mValue.setText("TM_CCOEFF_NORMED");
-                        break;
-                    case 4:
-                        mValue.setText("TM_CCORR");
-                        break;
-                    case 5:
-                        mValue.setText("TM_CCORR_NORMED");
-                        break;
-                }
-
-
-            }
-        });
     }
 
     @Override
@@ -329,13 +278,13 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
             }
 
-
+/*
             // cut eye areas and put them to zoom windows
             Imgproc.resize(mRgba.submat(eyearea_left), mZoomWindow2,
                     mZoomWindow2.size());
             Imgproc.resize(mRgba.submat(eyearea_right), mZoomWindow,
                     mZoomWindow.size());
-
+*/
 
         }
 
@@ -372,6 +321,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
         mAbsoluteFaceSize = 0;
     }
 
+    // Crear matrices ZOOMING
     private void CreateAuxiliaryMats() {
         if (mGray.empty())
             return;
@@ -442,8 +392,10 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
     }
 
+    // Se crea el template para los clasificadores de ojos
     private Mat get_template(CascadeClassifier clasificator, Rect area, int size) {
         Mat template = new Mat();
+        //  submat extracts a rectangular submatrix.
         Mat mROI = mGray.submat(area);
         MatOfRect eyes = new MatOfRect();
         Point iris = new Point();
