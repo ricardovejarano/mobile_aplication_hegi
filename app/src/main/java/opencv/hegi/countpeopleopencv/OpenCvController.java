@@ -178,15 +178,21 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
+        int x1 = 650;
+        int y1 = 620;
+        int x2 = 350;
+        int y2 = 620;
+
+
+        Imgproc.line(mRgba, new Point( x1, 0 ), new Point( x1, y1), new Scalar(0,255,0), 3);
+        Imgproc.line(mRgba, new Point( x2, 0 ), new Point( x2, y2), new Scalar(255,0,0), 3);
 
         if (mAbsoluteFaceSize == 0) {
             int height = mGray.rows();
             if (Math.round(height * mRelativeFaceSize) > 0) {
                 mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize);
             }
-
         }
-
 
         MatOfRect faces = new MatOfRect();
 
@@ -200,8 +206,8 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
         }
 
         Rect[] facesArray = faces.toArray();
-        for (int i = 0; i < facesArray.length; i++)
-        {	Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
+        for (int i = 0; i < facesArray.length; i++) {
+            Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
                 FACE_RECT_COLOR, 3);
             xCenter = (facesArray[i].x + facesArray[i].width + facesArray[i].x) / 2;
             yCenter = (facesArray[i].y + facesArray[i].y + facesArray[i].height) / 2;
