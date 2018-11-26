@@ -66,6 +66,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
     private CameraBridgeViewBase   mOpenCvCameraView;
 
+    int counterW = 0;
     double xCenter = -1;
     double yCenter = -1;
 
@@ -105,7 +106,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                         Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
                     }
                     mOpenCvCameraView.enableFpsMeter();
-                    mOpenCvCameraView.setCameraIndex(0);
+                    mOpenCvCameraView.setCameraIndex(1);
                     mOpenCvCameraView.enableView();
                 } break;
                 default:
@@ -187,6 +188,12 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
         Imgproc.line(mRgba, new Point( x1, 0 ), new Point( x1, y1), new Scalar(0,255,0), 3);
         Imgproc.line(mRgba, new Point( x2, 0 ), new Point( x2, y2), new Scalar(255,0,0), 3);
 
+        Imgproc.putText(mRgba,  "Contador: " + counterW,
+                new Point( 20,  60),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+
         if (mAbsoluteFaceSize == 0) {
             int height = mGray.rows();
             if (Math.round(height * mRelativeFaceSize) > 0) {
@@ -207,6 +214,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
         Rect[] facesArray = faces.toArray();
         for (int i = 0; i < facesArray.length; i++) {
+            counterPeople();
             Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
                 FACE_RECT_COLOR, 3);
             xCenter = (facesArray[i].x + facesArray[i].width + facesArray[i].x) / 2;
@@ -219,6 +227,12 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                     new Point(center.x + 20, center.y + 20),
                     Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                             255));
+
+            if (facesArray[i].x < 350) {
+                counterW ++;
+            }
+
+
 
             Rect r = facesArray[i];
             // compute the eye area
@@ -242,6 +256,10 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
         }
 
         return mRgba;
+    }
+
+    public void counterPeople() {
+
     }
 
     @Override
