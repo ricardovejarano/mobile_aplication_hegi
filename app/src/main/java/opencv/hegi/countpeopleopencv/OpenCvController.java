@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 
 public class OpenCvController extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -70,6 +71,10 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     double xCenter = -1;
     double yCenter = -1;
 
+    // Objeto para obtener las coordenadas
+    private ArrayList<PersonCoordenade> personCoordenades;
+    // PersonCoordenade personCoordenade = new PersonCoordenade();
+
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -106,7 +111,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                         Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
                     }
                     mOpenCvCameraView.enableFpsMeter();
-                    mOpenCvCameraView.setCameraIndex(1);
+                    mOpenCvCameraView.setCameraIndex(0);
                     mOpenCvCameraView.enableView();
                 } break;
                 default:
@@ -120,7 +125,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     public OpenCvController() {
         mDetectorName = new String[2];
         mDetectorName[JAVA_DETECTOR] = "Java";
-
+        personCoordenades = new ArrayList<PersonCoordenade>();
         Log.i(TAG, "Instantiated new " + this.getClass());
     }
 
@@ -228,8 +233,33 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                     Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                             255));
 
-            if (facesArray[i].x < 350) {
+            // Sección para guardar el objeto de detección
+            PersonCoordenade myPersonCoordenade = new PersonCoordenade();
+            myPersonCoordenade.setHorizontal(facesArray[i].x);
+            myPersonCoordenade.setVertical(facesArray[i].y);
+
+            personCoordenades.add(myPersonCoordenade);
+
+
+
+            if(personCoordenades.size() == 10) {
                 counterW ++;
+            }
+
+            if(personCoordenades.size() == 30) {
+                counterW ++;
+            }
+
+            if(personCoordenades.size() == 80) {
+                counterW ++;
+            }
+
+            if(personCoordenades.size() == 100) {
+                counterW ++;
+            }
+
+            if (facesArray[i].x < 350) {
+                // counterW ++;
             }
 
 
