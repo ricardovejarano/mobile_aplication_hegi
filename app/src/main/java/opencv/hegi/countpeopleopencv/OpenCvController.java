@@ -255,40 +255,39 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                 if(personTestCoordenades.size() == 0) {
                     personTestCoordenades.add(myPersonCoordenade);
                 } else {
+
                     // In this else it is necessary to evaluate if the previous detected frame has in common
                     // similar coordinates with the new capture
 
-                    int lastVertical = personTestCoordenades.get(personCoordenades.size() - 1).getVertical();  // last value of the horizontal coordenade
-                    int lastHorizontal = personTestCoordenades.get(personTestCoordenades.size()-1).getVertical(); // last value of the vertical coordenade
-                    int actualVertical = myPersonCoordenade.getVertical();
-                    int actualHorizontal = myPersonCoordenade.getHorizontal();
+                    int sizeArray = 1;
+                    if(personCoordenades.size() == 1) {
+                        sizeArray = 0;
+                    } else {
+                        sizeArray = 1;
+                    }
+
+                   int lastPosition = 0;
+                    lastPosition = personTestCoordenades.size() - 1;
+                   int lastVertical = personTestCoordenades.get(lastPosition).getVertical();  // last value of the horizontal coordenade
+                   int lastHorizontal = personTestCoordenades.get(lastPosition).getHorizontal(); // last value of the vertical coordenade
+                   int actualVertical = myPersonCoordenade.getVertical();
+                   int actualHorizontal = myPersonCoordenade.getHorizontal();
 
                     // This conditional determine if the actual vertical calue is near of the pervious value saved
-                    if(actualVertical >= lastVertical - 20 && actualVertical <= lastVertical + 20) {
+                   if(actualVertical >= lastVertical - 20 && actualVertical <= lastVertical + 20) {
                         if(actualHorizontal >= lastHorizontal - 20 && actualHorizontal <= lastHorizontal + 20) {
-                            personTestCoordenades.add(myPersonCoordenade);
+                             personTestCoordenades.add(myPersonCoordenade);
                         }
-                    }
-
-
-                    if(myPersonCoordenade.getVertical() < personTestCoordenades.get(personCoordenades.size() - 1).getVertical()) {
-
-                    }
+                   }
                 }
 
             }
 
 
-
-
-            if(personCoordenades.size() == 10) {
+            if(personTestCoordenades.size() == 10) {
                 counterW ++;
             }
 
-
-            if (facesArray[i].x < 350) {
-                // counterW ++;
-            }
 
 
 
