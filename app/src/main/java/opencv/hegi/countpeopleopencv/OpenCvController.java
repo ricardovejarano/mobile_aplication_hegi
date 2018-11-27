@@ -128,6 +128,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
         mDetectorName = new String[2];
         mDetectorName[JAVA_DETECTOR] = "Java";
         personCoordenades = new ArrayList<PersonCoordenade>();
+        personTestCoordenades = new ArrayList<PersonCoordenade>();
         Log.i(TAG, "Instantiated new " + this.getClass());
     }
 
@@ -235,14 +236,35 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                     Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                             255));
 
-            // Sección para guardar el objeto de detección
+            // myPersonCoordenade saves the coordenades of the haar cascade detection
             PersonCoordenade myPersonCoordenade = new PersonCoordenade();
 
 
             myPersonCoordenade.setHorizontal(facesArray[i].x);
             myPersonCoordenade.setVertical(facesArray[i].y);
 
-            personCoordenades.add(myPersonCoordenade);
+
+            // In this section first there are a verfication of the exist personCoordenade
+            // If personCoordenades does not exist, we start to fill a testArray to verify that is not noise
+            // Then if is define that those frames are not noise, the content of thetemporal array will be pased
+            // to the Tracking array ==> personCoordenade
+
+            if(personCoordenades.size() != 0) {
+                // personCoordenades.add(myPersonCoordenade);
+            } else {
+                if(personTestCoordenades.size() == 0) {
+                    personTestCoordenades.add(myPersonCoordenade);
+                } else {
+                    // In this else it is necessary to evaluate if the previous detected frame has in common
+                    // similar coordinates with the new capture
+
+                    if(myPersonCoordenade.getVertical() < personTestCoordenades.get(personCoordenades.size() - 1).getVertical()) {
+                
+                    }
+                }
+
+            }
+
 
 
 
@@ -284,6 +306,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     public void counterPeople() {
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
