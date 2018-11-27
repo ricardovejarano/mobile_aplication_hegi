@@ -71,9 +71,11 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     double xCenter = -1;
     double yCenter = -1;
 
-    // Objeto para obtener las coordenadas
-    private ArrayList<PersonCoordenade> personCoordenades;
-    // PersonCoordenade personCoordenade = new PersonCoordenade();
+    // ======== TRACKING DEFINITION VARIABLES ===================== //
+    private ArrayList<PersonCoordenade> personCoordenades;   // This array provide coordenades of a real frame
+    private ArrayList<PersonCoordenade> personTestCoordenades;  // This array help us to see if there are noise in frame
+
+
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -235,6 +237,8 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
             // Sección para guardar el objeto de detección
             PersonCoordenade myPersonCoordenade = new PersonCoordenade();
+
+
             myPersonCoordenade.setHorizontal(facesArray[i].x);
             myPersonCoordenade.setVertical(facesArray[i].y);
 
@@ -246,17 +250,6 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                 counterW ++;
             }
 
-            if(personCoordenades.size() == 30) {
-                counterW ++;
-            }
-
-            if(personCoordenades.size() == 80) {
-                counterW ++;
-            }
-
-            if(personCoordenades.size() == 100) {
-                counterW ++;
-            }
 
             if (facesArray[i].x < 350) {
                 // counterW ++;
