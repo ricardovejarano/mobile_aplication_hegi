@@ -260,11 +260,6 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                     // similar coordinates with the new capture
 
                     int sizeArray = 1;
-                    if(personCoordenades.size() == 1) {
-                        sizeArray = 0;
-                    } else {
-                        sizeArray = 1;
-                    }
 
                    int lastPosition = 0;
                     lastPosition = personTestCoordenades.size() - 1;
@@ -274,9 +269,10 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                    int actualHorizontal = myPersonCoordenade.getHorizontal();
 
                     // This conditional determine if the actual vertical calue is near of the pervious value saved
-                   if(actualVertical >= lastVertical - 20 && actualVertical <= lastVertical + 20) {
-                        if(actualHorizontal >= lastHorizontal - 20 && actualHorizontal <= lastHorizontal + 20) {
+                   if(actualVertical >= lastVertical - 40 && actualVertical <= lastVertical + 40) {
+                        if(actualHorizontal >= lastHorizontal - 40 && actualHorizontal <= lastHorizontal + 40) {
                              personTestCoordenades.add(myPersonCoordenade);
+                            counterW ++;
                         }
                    }
                 }
@@ -285,7 +281,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
 
             if(personTestCoordenades.size() == 10) {
-                counterW ++;
+                // counterW ++;
             }
 
 
