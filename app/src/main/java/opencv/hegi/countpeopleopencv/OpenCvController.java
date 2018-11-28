@@ -263,17 +263,15 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
                    int lastPosition = 0;
                     lastPosition = personTestCoordenades.size() - 1;
-                   int lastVertical = personTestCoordenades.get(lastPosition).getVertical();  // last value of the horizontal coordenade
-                   int lastHorizontal = personTestCoordenades.get(lastPosition).getHorizontal(); // last value of the vertical coordenade
+                   int lastVertical = personTestCoordenades.get(lastPosition).getVertical();  // last value of the horizontal coordinate
+                   int lastHorizontal = personTestCoordenades.get(lastPosition).getHorizontal(); // last value of the vertical coordinate
                    int actualVertical = myPersonCoordenade.getVertical();
                    int actualHorizontal = myPersonCoordenade.getHorizontal();
 
-                    // This conditional determine if the actual vertical calue is near of the pervious value saved
-                   if(actualVertical >= lastVertical - 40 && actualVertical <= lastVertical + 40) {
-                        if(actualHorizontal >= lastHorizontal - 40 && actualHorizontal <= lastHorizontal + 40) {
+                    // This conditional determine if the actual vertical value is near of the pervious value saved
+                   if(actualVertical >= lastVertical - 40 && actualVertical <= lastVertical + 40 && actualHorizontal >= lastHorizontal - 40 && actualHorizontal <= lastHorizontal + 40) {
                              personTestCoordenades.add(myPersonCoordenade);
                             counterW ++;
-                        }
                    }
                 }
 
