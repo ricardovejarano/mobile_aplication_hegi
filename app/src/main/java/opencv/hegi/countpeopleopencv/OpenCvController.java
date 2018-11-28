@@ -270,8 +270,13 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
                     // This conditional determine if the actual vertical value is near of the pervious value saved
                    if(actualVertical >= lastVertical - 40 && actualVertical <= lastVertical + 40 && actualHorizontal >= lastHorizontal - 40 && actualHorizontal <= lastHorizontal + 40) {
-                             personTestCoordenades.add(myPersonCoordenade);
-                            counterW ++;
+                       // Here comes coordinated which belongs to the real object detected
+                       personTestCoordenades.add(myPersonCoordenade);
+                       if(actualHorizontal < 350) {
+                           evaluateDownPassager();
+                           // function to evaluate
+                       }
+                       // counterW ++;
                    }
                 }
 
@@ -307,6 +312,21 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
         }
 
         return mRgba;
+    }
+
+    // In this function it is validated if the person made the trip to get off the bus
+    public void evaluateDownPassager() {
+
+        if(personTestCoordenades.size() > 30) {
+            int lastPosition =  personTestCoordenades.size() - 1;
+            int firstFrame =  personTestCoordenades.get(5).getVertical();
+            int secondFrame =  personTestCoordenades.get(10).getVertical();
+            int lastFrame =  personTestCoordenades.get(lastPosition).getVertical();
+            if(firstFrame > secondFrame && secondFrame > lastFrame) {
+                counterW = 1;
+            }
+        }
+
     }
 
     public void counterPeople() {
