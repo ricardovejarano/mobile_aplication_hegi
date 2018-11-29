@@ -236,7 +236,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                     Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                             255));
 
-            // myPersonCoordenade saves the coordenades of the haar cascade detection
+            // La variable myPersonCoordinate guarda las coordenadas X,Y por cada ciclo de detección
             PersonCoordenade myPersonCoordenade = new PersonCoordenade();
 
 
@@ -244,10 +244,12 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
             myPersonCoordenade.setVertical(facesArray[i].y);
 
 
-            // In this section first there are a verfication of the exist personCoordenade
-            // If personCoordenades does not exist, we start to fill a testArray to verify that is not noise
-            // Then if is define that those frames are not noise, the content of thetemporal array will be pased
-            // to the Tracking array ==> personCoordenade
+            // En esta sección se verifica primero si existe algún dato en la
+            // variable personCoordenade.  Si no hay componente en ella, se empieza a
+            // llenar el array testArray para verificar que no es ruido
+            // luego, si se define que esos frames captados no son ruido, el contenido del
+            // array temporal se pasa al array de tracking final ==> personCoordinate
+            
 
             if(personCoordenades.size() != 0) {
                 // personCoordenades.add(myPersonCoordenade);
@@ -258,11 +260,10 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
                     // In this else it is necessary to evaluate if the previous detected frame has in common
                     // similar coordinates with the new capture
-
-                    int sizeArray = 1;
+                   int sizeArray = 1;
 
                    int lastPosition = 0;
-                    lastPosition = personTestCoordenades.size() - 1;
+                   lastPosition = personTestCoordenades.size() - 1;
                    int lastVertical = personTestCoordenades.get(lastPosition).getVertical();  // last value of the horizontal coordinate
                    int lastHorizontal = personTestCoordenades.get(lastPosition).getHorizontal(); // last value of the vertical coordinate
                    int actualVertical = myPersonCoordenade.getVertical();
@@ -279,15 +280,12 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                        // counterW ++;
                    }
                 }
-
             }
 
 
             if(personTestCoordenades.size() == 10) {
                 // counterW ++;
             }
-
-
 
 
             Rect r = facesArray[i];
