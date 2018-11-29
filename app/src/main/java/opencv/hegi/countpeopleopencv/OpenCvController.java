@@ -8,14 +8,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.SeekBar;
-import android.widget.TextView;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
@@ -24,7 +22,7 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
-import org.opencv.objdetect.Objdetect;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -72,8 +70,8 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     double yCenter = -1;
 
     // ======== TRACKING DEFINITION VARIABLES ===================== //
-    private ArrayList<PersonCoordenade> personCoordenades;   // This array provide coordenades of a real frame
-    private ArrayList<PersonCoordenade> personTestCoordenades;  // This array help us to see if there are noise in frame
+    private ArrayList<PersonCoordinate> personCoordinates;   // This array provide coordenades of a real frame
+    private ArrayList<PersonCoordinate> personTestCoordinates;  // This array help us to see if there are noise in frame
 
 
 
@@ -127,8 +125,8 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     public OpenCvController() {
         mDetectorName = new String[2];
         mDetectorName[JAVA_DETECTOR] = "Java";
-        personCoordenades = new ArrayList<PersonCoordenade>();
-        personTestCoordenades = new ArrayList<PersonCoordenade>();
+        personCoordinates = new ArrayList<PersonCoordinate>();
+        personTestCoordinates = new ArrayList<PersonCoordinate>();
         Log.i(TAG, "Instantiated new " + this.getClass());
     }
 
@@ -237,11 +235,11 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                             255));
 
             // La variable myPersonCoordinate guarda las coordenadas X,Y por cada ciclo de detección
-            PersonCoordenade myPersonCoordenade = new PersonCoordenade();
+            PersonCoordinate myPersonCoordinate = new PersonCoordinate();
 
 
-            myPersonCoordenade.setHorizontal(facesArray[i].x);
-            myPersonCoordenade.setVertical(facesArray[i].y);
+            myPersonCoordinate.setHorizontal(facesArray[i].x);
+            myPersonCoordinate.setVertical(facesArray[i].y);
 
 
             // En esta sección se verifica primero si existe algún dato en la
@@ -249,13 +247,13 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
             // llenar el array testArray para verificar que no es ruido
             // luego, si se define que esos frames captados no son ruido, el contenido del
             // array temporal se pasa al array de tracking final ==> personCoordinate
-            
 
-            if(personCoordenades.size() != 0) {
-                // personCoordenades.add(myPersonCoordenade);
+
+            if(personCoordinates.size() != 0) {
+                // personCoordinates.add(myPersonCoordinate);
             } else {
-                if(personTestCoordenades.size() == 0) {
-                    personTestCoordenades.add(myPersonCoordenade);
+                if(personTestCoordinates.size() == 0) {
+                    personTestCoordinates.add(myPersonCoordinate);
                 } else {
 
                     // In this else it is necessary to evaluate if the previous detected frame has in common
@@ -263,16 +261,16 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                    int sizeArray = 1;
 
                    int lastPosition = 0;
-                   lastPosition = personTestCoordenades.size() - 1;
-                   int lastVertical = personTestCoordenades.get(lastPosition).getVertical();  // last value of the horizontal coordinate
-                   int lastHorizontal = personTestCoordenades.get(lastPosition).getHorizontal(); // last value of the vertical coordinate
-                   int actualVertical = myPersonCoordenade.getVertical();
-                   int actualHorizontal = myPersonCoordenade.getHorizontal();
+                   lastPosition = personTestCoordinates.size() - 1;
+                   int lastVertical = personTestCoordinates.get(lastPosition).getVertical();  // last value of the horizontal coordinate
+                   int lastHorizontal = personTestCoordinates.get(lastPosition).getHorizontal(); // last value of the vertical coordinate
+                   int actualVertical = myPersonCoordinate.getVertical();
+                   int actualHorizontal = myPersonCoordinate.getHorizontal();
 
                     // This conditional determine if the actual vertical value is near of the pervious value saved
                    if(actualVertical >= lastVertical - 40 && actualVertical <= lastVertical + 40 && actualHorizontal >= lastHorizontal - 40 && actualHorizontal <= lastHorizontal + 40) {
                        // Here comes coordinated which belongs to the real object detected
-                       personTestCoordenades.add(myPersonCoordenade);
+                       personTestCoordinates.add(myPersonCoordinate);
                        if(actualHorizontal < 350) {
                            evaluateDownPassager();
                            // function to evaluate
@@ -283,7 +281,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
             }
 
 
-            if(personTestCoordenades.size() == 10) {
+            if(personTestCoordinates.size() == 10) {
                 // counterW ++;
             }
 
@@ -315,11 +313,11 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     // In this function it is validated if the person made the trip to get off the bus
     public void evaluateDownPassager() {
 
-        if(personTestCoordenades.size() > 30) {
-            int lastPosition =  personTestCoordenades.size() - 1;
-            int firstFrame =  personTestCoordenades.get(5).getVertical();
-            int secondFrame =  personTestCoordenades.get(10).getVertical();
-            int lastFrame =  personTestCoordenades.get(lastPosition).getVertical();
+        if(personTestCoordinates.size() > 30) {
+            int lastPosition =  personTestCoordinates.size() - 1;
+            int firstFrame =  personTestCoordinates.get(5).getVertical();
+            int secondFrame =  personTestCoordinates.get(10).getVertical();
+            int lastFrame =  personTestCoordinates.get(lastPosition).getVertical();
             if(firstFrame > secondFrame && secondFrame > lastFrame) {
                 counterW = 1;
             }

@@ -1,15 +1,15 @@
 package opencv.hegi.countpeopleopencv;
 
-class PersonCoordenade {
+class PersonCoordinate {
     private int horizontal;
     private int vertical;
 
-    public PersonCoordenade()
+    public PersonCoordinate()
     {
         horizontal = 0;
         vertical = 0;
     }
-    public PersonCoordenade(int x , int y)
+    public PersonCoordinate(int x , int y)
     {
         horizontal = x;
         vertical = y;
