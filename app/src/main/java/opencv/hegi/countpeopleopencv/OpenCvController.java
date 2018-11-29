@@ -66,6 +66,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     private CameraBridgeViewBase   mOpenCvCameraView;
 
     int counterW = 0;
+    int counterFrames = 0;
     double xCenter = -1;
     double yCenter = -1;
 
@@ -199,6 +200,11 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
+        Imgproc.putText(mRgba,  "Frames: " + counterFrames,
+                new Point( 20,  90),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
 
         if (mAbsoluteFaceSize == 0) {
             int height = mGray.rows();
@@ -247,8 +253,6 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
             // llenar el array testArray para verificar que no es ruido
             // luego, si se define que esos frames captados no son ruido, el contenido del
             // array temporal se pasa al array de tracking final ==> personCoordinate
-
-
             if(personCoordinates.size() != 0) {
                 // personCoordinates.add(myPersonCoordinate);
             } else {
