@@ -67,6 +67,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
     int counterW = 0;
     int counterFrames = 0;
+    int counterRefresh = 0;
     double xCenter = -1;
     double yCenter = -1;
 
@@ -74,6 +75,15 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     private ArrayList<PersonCoordinate> personCoordinates;   // This array provide coordenades of a real frame
     private ArrayList<PersonCoordinate> personTestCoordinates;  // This array help us to see if there are noise in frame
 
+    private boolean zone1 = false;
+    private boolean zone2 = false;
+    private boolean zone3 = false;
+    private boolean zone4 = false;
+    private boolean zone5 = false;
+    private boolean zone6 = false;
+    private boolean zone7 = false;
+    private boolean zone8 = false;
+    private boolean zone9 = false;
 
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
@@ -274,12 +284,21 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                     // This conditional determine if the actual vertical value is near of the pervious value saved
                    if(actualVertical >= lastVertical - 40 && actualVertical <= lastVertical + 40 && actualHorizontal >= lastHorizontal - 40 && actualHorizontal <= lastHorizontal + 40) {
                        // Here comes coordinated which belongs to the real object detected
+                       counterFrames++;
                        personTestCoordinates.add(myPersonCoordinate);
                        if(actualHorizontal < 350) {
                            evaluateDownPassager();
                            // function to evaluate
                        }
                        // counterW ++;
+                   } else {
+                       counterRefresh++;
+                       if (counterRefresh > 10) {
+                           personTestCoordinates.clear();
+                           counterFrames = 0;
+                       }
+                       // Un contador que si llega a cierto numero dispara el evento de limpiar el array
+
                    }
                 }
             }
@@ -323,7 +342,8 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
             int secondFrame =  personTestCoordinates.get(10).getVertical();
             int lastFrame =  personTestCoordinates.get(lastPosition).getVertical();
             if(firstFrame > secondFrame && secondFrame > lastFrame) {
-                counterW = 1;
+                counterW++;
+                personTestCoordinates.clear();
             }
         }
 
