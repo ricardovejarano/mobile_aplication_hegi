@@ -436,7 +436,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
         int average = (zone1 + zone2 + zone3 + zone4 +zone5);
         if(average >=  3) {
-            counterUp++;
+            counterDown++;
             personTestCoordinates.clear();
             counterFrames = 0;
             zone1 = 0;
@@ -455,7 +455,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
         int average = (zone8 + zone7 + zone6 + zone5 +zone4);
         if(average >=  3) {
-            counterDown++;
+            counterUp++;
             personTestCoordinates.clear();
             counterFrames = 0;
             zone1 = 0;
