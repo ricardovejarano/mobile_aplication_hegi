@@ -65,7 +65,8 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
     private CameraBridgeViewBase   mOpenCvCameraView;
 
-    int counterW = 0;
+    int counterUp = 0;
+    int counterDown = 0;
     int counterFrames = 0;
     int counterRefresh = 0;
     double xCenter = -1;
@@ -205,54 +206,59 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
         Imgproc.line(mRgba, new Point( x1, 0 ), new Point( x1, y1), new Scalar(255,0,0), 3);
         Imgproc.line(mRgba, new Point( x2, 0 ), new Point( x2, y2), new Scalar(0,255,0), 3);
 
-        Imgproc.putText(mRgba,  "Contador: " + counterW,
+        Imgproc.putText(mRgba,  "Contador Up: " + counterUp,
                 new Point( 20,  60),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
-        Imgproc.putText(mRgba,  "Frames: " + counterFrames,
+        Imgproc.putText(mRgba,  "Contador Down: " + counterDown,
                 new Point( 20,  90),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "Frames: " + counterFrames,
+                new Point( 20,  120),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
         // =====================CONTADORES DE ZONAS ===========================================//
         Imgproc.putText(mRgba,  "Zona1: " + zone1,
-                new Point( 20,  120),
-                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
-                        255));
-
-        Imgproc.putText(mRgba,  "Zona2: " + zone2,
                 new Point( 20,  150),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
-        Imgproc.putText(mRgba,  "Zona3: " + zone3,
+        Imgproc.putText(mRgba,  "Zona2: " + zone2,
                 new Point( 20,  180),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
-        Imgproc.putText(mRgba,  "Zona4: " + zone4,
+        Imgproc.putText(mRgba,  "Zona3: " + zone3,
                 new Point( 20,  210),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
-        Imgproc.putText(mRgba,  "Zona5: " + zone5,
+        Imgproc.putText(mRgba,  "Zona4: " + zone4,
                 new Point( 20,  240),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
-        Imgproc.putText(mRgba,  "Zona6: " + zone6,
+        Imgproc.putText(mRgba,  "Zona5: " + zone5,
                 new Point( 20,  270),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
-        Imgproc.putText(mRgba,  "Zona7: " + zone7,
+        Imgproc.putText(mRgba,  "Zona6: " + zone6,
                 new Point( 20,  300),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
-        Imgproc.putText(mRgba,  "Zona8: " + zone8,
+        Imgproc.putText(mRgba,  "Zona7: " + zone7,
                 new Point( 20,  330),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "Zona8: " + zone8,
+                new Point( 20,  360),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
@@ -361,9 +367,18 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                        counterFrames++;
                        personTestCoordinates.add(myPersonCoordinate);
                        if(actualHorizontal < 350) {
+                           evaluateUpPassager();
+                           // function to evaluate
+                       }
+
+                       if(actualHorizontal > 650) {
                            evaluateDownPassager();
                            // function to evaluate
                        }
+
+
+
+
                        // counterW ++;
                    } else {
                        counterRefresh++;
@@ -419,9 +434,28 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     // In this function it is validated if the person made the trip to get off the bus
     public void evaluateDownPassager() {
 
+        int average = (zone1 + zone2 + zone3 + zone4 +zone5);
+        if(average >=  3) {
+            counterUp++;
+            personTestCoordinates.clear();
+            counterFrames = 0;
+            zone1 = 0;
+            zone2 = 0;
+            zone3 = 0;
+            zone4 = 0;
+            zone5 = 0;
+            zone6 = 0;
+            zone7 = 0;
+            zone8 = 0;
+            zone9 = 0;
+        }
+    }
+
+    public void evaluateUpPassager() {
+
         int average = (zone8 + zone7 + zone6 + zone5 +zone4);
         if(average >=  3) {
-            counterW++;
+            counterDown++;
             personTestCoordinates.clear();
             counterFrames = 0;
             zone1 = 0;
