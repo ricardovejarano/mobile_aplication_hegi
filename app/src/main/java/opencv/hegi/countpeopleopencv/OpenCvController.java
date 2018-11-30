@@ -75,15 +75,15 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     private ArrayList<PersonCoordinate> personCoordinates;   // This array provide coordenades of a real frame
     private ArrayList<PersonCoordinate> personTestCoordinates;  // This array help us to see if there are noise in frame
 
-    private boolean zone1 = false;
-    private boolean zone2 = false;
-    private boolean zone3 = false;
-    private boolean zone4 = false;
-    private boolean zone5 = false;
-    private boolean zone6 = false;
-    private boolean zone7 = false;
-    private boolean zone8 = false;
-    private boolean zone9 = false;
+    private int zone1 = 0;
+    private int zone2 = 0;
+    private int zone3 = 0;
+    private int zone4 = 0;
+    private int zone5 = 0;
+    private int zone6 = 0;
+    private int zone7 = 0;
+    private int zone8 = 0;
+    private int zone9 = 0;
 
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
@@ -202,8 +202,8 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
         int y2 = 620;
 
 
-        Imgproc.line(mRgba, new Point( x1, 0 ), new Point( x1, y1), new Scalar(0,255,0), 3);
-        Imgproc.line(mRgba, new Point( x2, 0 ), new Point( x2, y2), new Scalar(255,0,0), 3);
+        Imgproc.line(mRgba, new Point( x1, 0 ), new Point( x1, y1), new Scalar(255,0,0), 3);
+        Imgproc.line(mRgba, new Point( x2, 0 ), new Point( x2, y2), new Scalar(0,255,0), 3);
 
         Imgproc.putText(mRgba,  "Contador: " + counterW,
                 new Point( 20,  60),
@@ -212,6 +212,47 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
         Imgproc.putText(mRgba,  "Frames: " + counterFrames,
                 new Point( 20,  90),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        // =====================CONTADORES DE ZONAS ===========================================//
+        Imgproc.putText(mRgba,  "Zona1: " + zone1,
+                new Point( 20,  120),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "Zona2: " + zone2,
+                new Point( 20,  150),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "Zona3: " + zone3,
+                new Point( 20,  180),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "Zona4: " + zone4,
+                new Point( 20,  210),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "Zona5: " + zone5,
+                new Point( 20,  240),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "Zona6: " + zone6,
+                new Point( 20,  270),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "Zona7: " + zone7,
+                new Point( 20,  300),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "Zona8: " + zone8,
+                new Point( 20,  330),
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
@@ -283,6 +324,39 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
                     // This conditional determine if the actual vertical value is near of the pervious value saved
                    if(actualVertical >= lastVertical - 40 && actualVertical <= lastVertical + 40 && actualHorizontal >= lastHorizontal - 40 && actualHorizontal <= lastHorizontal + 40) {
+
+                       if(actualHorizontal > 800) {
+                           zone8 = 1;
+                       }
+
+                       if(actualHorizontal > 700 && actualHorizontal < 800) {
+                           zone7 = 1;
+                       }
+
+                       if(actualHorizontal > 600 && actualHorizontal < 700 ) {
+                           zone6 = 1;
+                       }
+
+                       if(actualHorizontal > 500 && actualHorizontal < 600 ) {
+                           zone5 = 1;
+                       }
+
+                       if(actualHorizontal > 400 && actualHorizontal < 500) {
+                           zone4 = 1;
+                       }
+
+                       if(actualHorizontal > 300 && actualHorizontal < 400) {
+                           zone3 = 1;
+                       }
+
+                       if(actualHorizontal > 200 && actualHorizontal < 300) {
+                           zone2 = 1;
+                       }
+
+                       if(actualHorizontal < 100) {
+                           zone1 = 1;
+                       }
+
                        // Here comes coordinated which belongs to the real object detected
                        counterFrames++;
                        personTestCoordinates.add(myPersonCoordinate);
@@ -296,6 +370,15 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                        if (counterRefresh > 10) {
                            personTestCoordinates.clear();
                            counterFrames = 0;
+                           zone1 = 0;
+                           zone2 = 0;
+                           zone3 = 0;
+                           zone4 = 0;
+                           zone5 = 0;
+                           zone6 = 0;
+                           zone7 = 0;
+                           zone8 = 0;
+                           zone9 = 0;
                        }
                        // Un contador que si llega a cierto numero dispara el evento de limpiar el array
 
@@ -336,17 +419,21 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     // In this function it is validated if the person made the trip to get off the bus
     public void evaluateDownPassager() {
 
-        if(personTestCoordinates.size() > 30) {
-            int lastPosition =  personTestCoordinates.size() - 1;
-            int firstFrame =  personTestCoordinates.get(5).getVertical();
-            int secondFrame =  personTestCoordinates.get(10).getVertical();
-            int lastFrame =  personTestCoordinates.get(lastPosition).getVertical();
-            if(firstFrame > secondFrame && secondFrame > lastFrame) {
-                counterW++;
-                personTestCoordinates.clear();
-            }
+        int average = (zone8 + zone7 + zone6 + zone5 +zone4);
+        if(average >=  3) {
+            counterW++;
+            personTestCoordinates.clear();
+            counterFrames = 0;
+            zone1 = 0;
+            zone2 = 0;
+            zone3 = 0;
+            zone4 = 0;
+            zone5 = 0;
+            zone6 = 0;
+            zone7 = 0;
+            zone8 = 0;
+            zone9 = 0;
         }
-
     }
 
     public void counterPeople() {
