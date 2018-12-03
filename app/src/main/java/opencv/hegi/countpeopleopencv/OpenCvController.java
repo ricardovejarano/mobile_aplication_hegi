@@ -86,6 +86,10 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     private int zone8 = 0;
     private int zone9 = 0;
 
+    private int widthRec = 0;
+    private int widthRecSaved = 0;
+
+
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -262,6 +266,17 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                 Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
                         255));
 
+        Imgproc.putText(mRgba,  "WIDTH: " + widthRec,
+                new Point( 20,  400),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+        Imgproc.putText(mRgba,  "REFRESH: " + counterRefresh,
+                new Point( 20,  430),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255, 255, 255,
+                        255));
+
+
 
         if (mAbsoluteFaceSize == 0) {
             int height = mGray.rows();
@@ -284,6 +299,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
         Rect[] facesArray = faces.toArray();
         for (int i = 0; i < facesArray.length; i++) {
             counterPeople();
+            widthRec = facesArray[i].width;
             Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
                 FACE_RECT_COLOR, 3);
             xCenter = (facesArray[i].x + facesArray[i].width + facesArray[i].x) / 2;
@@ -377,13 +393,17 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                        }
 
 
-
+                       widthRecSaved = widthRec;
 
                        // counterW ++;
                    } else {
+
+
                        counterRefresh++;
-                       if (counterRefresh > 10) {
+
+                       if (counterRefresh > 30) {
                            personTestCoordinates.clear();
+                           counterRefresh = 0;
                            counterFrames = 0;
                            zone1 = 0;
                            zone2 = 0;
@@ -439,6 +459,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
             counterDown++;
             personTestCoordinates.clear();
             counterFrames = 0;
+            counterRefresh = 0;
             zone1 = 0;
             zone2 = 0;
             zone3 = 0;
@@ -458,6 +479,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
             counterUp++;
             personTestCoordinates.clear();
             counterFrames = 0;
+            counterRefresh = 0;
             zone1 = 0;
             zone2 = 0;
             zone3 = 0;
