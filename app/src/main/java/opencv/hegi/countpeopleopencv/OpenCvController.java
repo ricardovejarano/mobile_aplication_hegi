@@ -101,7 +101,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
                     try {
                         // load cascade file from application resources
-                        InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+                        InputStream is = getResources().openRawResource(R.raw.rightear);
                         File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
                         mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
                         FileOutputStream os = new FileOutputStream(mCascadeFile);
@@ -127,7 +127,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                         Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
                     }
                     mOpenCvCameraView.enableFpsMeter();
-                    mOpenCvCameraView.setCameraIndex(0);
+                    mOpenCvCameraView.setCameraIndex(1);
                     mOpenCvCameraView.enableView();
                 } break;
                 default:
@@ -345,7 +345,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                    int actualHorizontal = myPersonCoordinate.getHorizontal();
 
                     // This conditional determine if the actual vertical value is near of the pervious value saved
-                   if(actualVertical >= lastVertical - 40 && actualVertical <= lastVertical + 40 && actualHorizontal >= lastHorizontal - 40 && actualHorizontal <= lastHorizontal + 40) {
+                   if(actualVertical >= lastVertical - 80 && actualVertical <= lastVertical + 80 && actualHorizontal >= lastHorizontal - 80 && actualHorizontal <= lastHorizontal + 80) {
 
                        if(actualHorizontal > 800) {
                            zone8 = 1;
@@ -455,7 +455,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     public void evaluateDownPassager() {
 
         int average = (zone1 + zone2 + zone3 + zone4 +zone5);
-        if(average >=  3) {
+        if(average >=  1) {
             counterDown++;
             personTestCoordinates.clear();
             counterFrames = 0;
@@ -475,7 +475,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
     public void evaluateUpPassager() {
 
         int average = (zone8 + zone7 + zone6 + zone5 +zone4);
-        if(average >=  3) {
+        if(average >=  1) {
             counterUp++;
             personTestCoordinates.clear();
             counterFrames = 0;
