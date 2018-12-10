@@ -1,6 +1,6 @@
-package opencv.hegi.countpeopleopencv;
+package opencv.hegi.countpeopleopencv.data.model;
 
-class PersonCoordinate {
+public class PersonCoordinate {
     private int horizontal;
     private int vertical;
 

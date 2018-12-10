@@ -1,7 +1,8 @@
-package opencv.hegi.countpeopleopencv
+package opencv.hegi.countpeopleopencv.ui.main
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import opencv.hegi.countpeopleopencv.R
 
 class MainActivity : AppCompatActivity() {
 

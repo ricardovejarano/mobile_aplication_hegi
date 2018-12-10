@@ -1,4 +1,4 @@
-package opencv.hegi.countpeopleopencv;
+package opencv.hegi.countpeopleopencv.ui.counter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -28,6 +28,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+
+import opencv.hegi.countpeopleopencv.data.model.PersonCoordinate;
+import opencv.hegi.countpeopleopencv.R;
 
 
 public class OpenCvController extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -101,7 +104,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
 
                     try {
                         // load cascade file from application resources
-                        InputStream is = getResources().openRawResource(R.raw.rightear);
+                        InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
                         File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
                         mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
                         FileOutputStream os = new FileOutputStream(mCascadeFile);
@@ -127,7 +130,7 @@ public class OpenCvController extends Activity implements CameraBridgeViewBase.C
                         Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
                     }
                     mOpenCvCameraView.enableFpsMeter();
-                    mOpenCvCameraView.setCameraIndex(1);
+                    mOpenCvCameraView.setCameraIndex(0);
                     mOpenCvCameraView.enableView();
                 } break;
                 default:
