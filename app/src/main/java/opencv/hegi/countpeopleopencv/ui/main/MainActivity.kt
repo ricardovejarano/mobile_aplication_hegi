@@ -25,6 +25,7 @@ import opencv.hegi.countpeopleopencv.data.model.Daily
 import opencv.hegi.countpeopleopencv.data.preferences.UserSession
 import opencv.hegi.countpeopleopencv.data.singleton.DBConection
 import opencv.hegi.countpeopleopencv.databinding.ActivityMainBinding
+import opencv.hegi.countpeopleopencv.ui.counter.OpenCVActivity
 import opencv.hegi.countpeopleopencv.ui.counter.OpenCvController
 import opencv.hegi.countpeopleopencv.ui.login.LoginActivity
 import opencv.hegi.countpeopleopencv.util.BlurImage
@@ -106,13 +107,13 @@ class MainActivity : AppCompatActivity() {
         MainBtnStartCount.clicks()
                 .subscribe{
                     if (existDateInDatabase) {
-                        startActivity<OpenCvController>()
+                        startActivity<OpenCVActivity>()
                     } else {
                         val daily = Daily(routeDriver, 0, 0)
                         val mUser = DBConection.mAuth.currentUser
                         val mUserReference = mDatabaseReferenceCounter!!.child(mUser!!.uid+ "/" +currentDate)
                         mUserReference.setValue(daily)
-                        startActivity<OpenCvController>()
+                        startActivity<OpenCVActivity>()
                     }
                 }
     }
