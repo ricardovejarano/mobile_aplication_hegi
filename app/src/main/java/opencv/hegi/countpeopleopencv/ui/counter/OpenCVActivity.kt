@@ -1,16 +1,20 @@
 package opencv.hegi.countpeopleopencv.ui.counter
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.databinding.DataBindingUtil.setContentView
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import com.jakewharton.rxbinding2.view.clicks
+import kotlinx.android.synthetic.main.activity_open_cv.*
 import opencv.hegi.countpeopleopencv.R
 import opencv.hegi.countpeopleopencv.data.model.PersonCoordinate
+import opencv.hegi.countpeopleopencv.ui.main.MainActivity
+import org.jetbrains.anko.startActivity
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
 import org.opencv.android.LoaderCallbackInterface
@@ -21,11 +25,7 @@ import org.opencv.objdetect.CascadeClassifier
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.lang.System.out
 import java.util.ArrayList
-import opencv.hegi.countpeopleopencv.ui.counter.OpenCvController.JAVA_DETECTOR
-
-
 
 
 class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
@@ -164,6 +164,7 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
             mOpenCvCameraView!!.disableView()
     }
 
+    @SuppressLint("CheckResult")
     public override fun onResume() {
         super.onResume()
         if (!OpenCVLoader.initDebug()) {
@@ -173,6 +174,12 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
             Log.d(TAG, "OpenCV library found inside package. Using it!")
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS)
         }
+
+
+        btnCountStop.clicks()
+                .subscribe {
+                    startActivity<MainActivity>()
+                }
     }
 
     public override fun onDestroy() {
