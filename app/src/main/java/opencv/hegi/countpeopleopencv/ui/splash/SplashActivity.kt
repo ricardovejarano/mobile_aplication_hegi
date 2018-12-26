@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.view.animation.AnimationUtils
-import com.counter.hegi.data.preferences.UserSession
 
 import kotlinx.android.synthetic.main.activity_splash.*
 import opencv.hegi.countpeopleopencv.R
+import opencv.hegi.countpeopleopencv.data.preferences.UserSession
 import opencv.hegi.countpeopleopencv.ui.login.LoginActivity
 import opencv.hegi.countpeopleopencv.ui.main.MainActivity
 import org.jetbrains.anko.startActivity

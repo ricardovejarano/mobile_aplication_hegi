@@ -1,8 +1,8 @@
 package opencv.hegi.countpeopleopencv
 
 import android.support.multidex.MultiDexApplication
-import com.counter.hegi.data.preferences.UserSession
-import com.counter.hegi.data.singleton.DBConection
+import opencv.hegi.countpeopleopencv.data.preferences.UserSession
+import opencv.hegi.countpeopleopencv.data.singleton.DBConection
 
 
 class App : MultiDexApplication() {

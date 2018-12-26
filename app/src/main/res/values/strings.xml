@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">CountPeopleOpenCV</string>
+    <string name="name_app">CountPeopleOpenCV</string>
+    <string name="open_menu">Abrir</string>
+    <string name="close_menu">Cerrar</string>
 </resources>

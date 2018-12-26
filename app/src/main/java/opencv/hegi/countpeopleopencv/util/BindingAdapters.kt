@@ -1,4 +1,4 @@
-package com.counter.hegi.util
+package opencv.hegi.countpeopleopencv.util
 
 import android.databinding.BindingAdapter
 import android.net.Uri

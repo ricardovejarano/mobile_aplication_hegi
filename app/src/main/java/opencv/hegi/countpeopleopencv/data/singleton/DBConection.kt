@@ -1,4 +1,4 @@
-package com.counter.hegi.data.singleton
+package opencv.hegi.countpeopleopencv.data.singleton
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase

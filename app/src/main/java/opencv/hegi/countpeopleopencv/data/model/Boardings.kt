@@ -1,4 +1,4 @@
-package com.counter.hegi.data.model
+package opencv.hegi.countpeopleopencv.data.model
 
 class Boardings (var time: String?,
                  var approachType: Boolean?,

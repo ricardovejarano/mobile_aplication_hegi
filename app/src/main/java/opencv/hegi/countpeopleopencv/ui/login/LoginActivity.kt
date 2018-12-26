@@ -4,12 +4,12 @@ import android.app.ProgressDialog
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
-import com.counter.hegi.data.preferences.UserSession
-import com.counter.hegi.util.text
+import opencv.hegi.countpeopleopencv.util.text
 import com.google.firebase.auth.FirebaseAuth
 import com.jakewharton.rxbinding2.view.clicks
 import kotlinx.android.synthetic.main.activity_login.*
 import opencv.hegi.countpeopleopencv.R
+import opencv.hegi.countpeopleopencv.data.preferences.UserSession
 import opencv.hegi.countpeopleopencv.ui.counter.OpenCvController
 import opencv.hegi.countpeopleopencv.ui.main.MainActivity
 import org.jetbrains.anko.startActivity

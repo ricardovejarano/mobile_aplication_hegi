@@ -1,4 +1,4 @@
-package com.counter.hegi.util
+package opencv.hegi.countpeopleopencv.util
 
 import android.widget.EditText
 import com.google.firebase.database.DataSnapshot

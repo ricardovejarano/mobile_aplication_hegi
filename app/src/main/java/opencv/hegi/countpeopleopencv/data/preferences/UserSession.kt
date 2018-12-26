@@ -1,4 +1,4 @@
-package com.counter.hegi.data.preferences
+package opencv.hegi.countpeopleopencv.data.preferences
 
 import android.app.Activity
 import android.content.Context
