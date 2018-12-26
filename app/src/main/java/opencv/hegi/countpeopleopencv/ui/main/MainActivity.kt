@@ -1,5 +1,6 @@
 package opencv.hegi.countpeopleopencv.ui.main
 
+import android.annotation.SuppressLint
 import android.databinding.DataBindingUtil
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -42,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        // setContentView(R.layout.activity_main)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -85,6 +86,7 @@ class MainActivity : AppCompatActivity() {
                 .into(target)
     }
 
+    @SuppressLint("CheckResult")
     override fun onResume() {
         super.onResume()
 

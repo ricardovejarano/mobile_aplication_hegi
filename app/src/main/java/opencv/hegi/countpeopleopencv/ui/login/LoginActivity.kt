@@ -1,5 +1,6 @@
 package opencv.hegi.countpeopleopencv.ui.login
 
+import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -37,6 +38,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
+    @SuppressLint("CheckResult")
     override fun onResume() {
         super.onResume()
 
