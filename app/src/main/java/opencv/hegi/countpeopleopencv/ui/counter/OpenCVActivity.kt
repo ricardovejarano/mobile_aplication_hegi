@@ -10,11 +10,20 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import com.google.android.gms.location.*
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.jakewharton.rxbinding2.view.clicks
 import kotlinx.android.synthetic.main.activity_open_cv.*
 import opencv.hegi.countpeopleopencv.R
+import opencv.hegi.countpeopleopencv.data.model.Boardings
 import opencv.hegi.countpeopleopencv.data.model.PersonCoordinate
+import opencv.hegi.countpeopleopencv.data.singleton.DBConection
 import opencv.hegi.countpeopleopencv.ui.main.MainActivity
+import opencv.hegi.countpeopleopencv.util.format
+import opencv.hegi.countpeopleopencv.util.formatHour
+import opencv.hegi.countpeopleopencv.util.value
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import org.opencv.android.BaseLoaderCallback
@@ -27,10 +36,17 @@ import org.opencv.objdetect.CascadeClassifier
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.ArrayList
+import java.util.*
 
 
 class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
+
+
+    private var mDatabaseReferenceCounter: DatabaseReference? = null
+    private var currentDate = ""
+    private var currentHour = ""
+    private var totalCount = 0
+    private var parcialCount = 0
 
     // Variables para Geolocalización
     private lateinit var locationCallback: LocationCallback
@@ -157,6 +173,7 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
     public override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "called onCreate")
         super.onCreate(savedInstanceState)
+        initialise()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         setContentView(R.layout.activity_open_cv)
@@ -168,7 +185,7 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
-                for (location in locationResult.locations){
+                for (location in locationResult.locations) {
                     longitude = location.longitude
                     latitude = location.latitude
                     // toast(location.latitude.toString() + location.longitude.toString())
@@ -195,6 +212,23 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
     @SuppressLint("CheckResult")
     public override fun onResume() {
         super.onResume()
+
+
+        currentDate = Date().format()
+
+        val mUser = DBConection.mAuth.currentUser
+        val mUserReference = mDatabaseReferenceCounter?.child(mUser!!.uid + "/" + currentDate)
+        Log.d("ENTRA",mUserReference.toString())
+        mUserReference?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                totalCount = snapshot.value("totalCount").toString().toInt()
+                parcialCount = snapshot.value("parcialCount").toString().toInt()
+                Log.d("VARIABLET",totalCount.toString())
+            }
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+
+
         if (!OpenCVLoader.initDebug()) {
             Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization")
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback)
@@ -240,8 +274,21 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         val y2 = 620
 
 
+
         Imgproc.line(mRgba!!, Point(x1.toDouble(), 0.0), Point(x1.toDouble(), y1.toDouble()), Scalar(255.0, 0.0, 0.0), 3)
         Imgproc.line(mRgba!!, Point(x2.toDouble(), 0.0), Point(x2.toDouble(), y2.toDouble()), Scalar(0.0, 255.0, 0.0), 3)
+
+        Imgproc.putText(mRgba!!, "Contador total: $totalCount",
+                Point(700.0, 60.0),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255.0, 255.0, 255.0,
+                255.0))
+
+        Imgproc.putText(mRgba!!, "Contador parcial: $parcialCount",
+                Point(700.0, 90.0),
+                Core.FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255.0, 255.0, 255.0,
+                255.0))
+
+        // ==============================================================================================================================================
 
         Imgproc.putText(mRgba!!, "Contador Up: $counterUp",
                 Point(20.0, 60.0),
@@ -330,7 +377,6 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
 
         val facesArray = faces.toArray()
         for (i in facesArray.indices) {
-            counterPeople()
             widthRec = facesArray[i].width
             Imgproc.rectangle(mRgba!!, facesArray[i].tl(), facesArray[i].br(),
                     FACE_RECT_COLOR, 3)
@@ -486,22 +532,36 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
     // In this function it is validated if the person made the trip to get off the bus
     fun evaluateDownPassager() {
 
-        val average = zone1 + zone2 + zone3 + zone4 + zone5
-        if (average >= 1) {
-            counterDown++
-            personTestCoordinates.clear()
-            counterFrames = 0
-            counterRefresh = 0
-            zone1 = 0
-            zone2 = 0
-            zone3 = 0
-            zone4 = 0
-            zone5 = 0
-            zone6 = 0
-            zone7 = 0
-            zone8 = 0
-            zone9 = 0
+        if (parcialCount != 0) {
+            val average = zone1 + zone2 + zone3 + zone4 + zone5
+            if (average >= 1) {
+                counterDown++
+                writeDown()
+                personTestCoordinates.clear()
+                counterFrames = 0
+                counterRefresh = 0
+                zone1 = 0
+                zone2 = 0
+                zone3 = 0
+                zone4 = 0
+                zone5 = 0
+                zone6 = 0
+                zone7 = 0
+                zone8 = 0
+                zone9 = 0
+            }
         }
+    }
+
+    fun writeDown() {
+        currentHour = Date().formatHour()
+        var downCount = Boardings(currentHour, false, parcialCount - 1, totalCount, latitude, longitude)
+        val mUser = DBConection.mAuth.currentUser
+        val mUserReference = mDatabaseReferenceCounter!!.child(mUser!!.uid + "/" + currentDate + "/boardings")
+        val mCountReference = mDatabaseReferenceCounter!!.child(mUser.uid + "/" + currentDate)
+        val tempCount = mCountReference.child("parcialCount")
+        tempCount.setValue(parcialCount - 1)
+        mUserReference.push().setValue(downCount)
     }
 
     fun evaluateUpPassager() {
@@ -509,6 +569,7 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         val average = zone8 + zone7 + zone6 + zone5 + zone4
         if (average >= 1) {
             counterUp++
+            writeUp()
             personTestCoordinates.clear()
             counterFrames = 0
             counterRefresh = 0
@@ -524,8 +585,17 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         }
     }
 
-    fun counterPeople() {
-
+    fun writeUp() {
+        currentHour = Date().formatHour()
+        var upCount = Boardings(currentHour, true, parcialCount + 1, totalCount + 1, latitude, longitude)
+        val mUser = DBConection.mAuth.currentUser
+        val mUserReference = mDatabaseReferenceCounter!!.child(mUser!!.uid + "/" + currentDate + "/boardings")
+        val mCountReference = mDatabaseReferenceCounter!!.child(mUser.uid + "/" + currentDate)
+        val tempCountParcial = mCountReference.child("parcialCount")
+        val tempCountTotal = mCountReference.child("totalCount")
+        tempCountParcial.setValue(parcialCount + 1)
+        tempCountTotal.setValue(totalCount + 1)
+        mUserReference.push().setValue(upCount)
     }
 
 
@@ -582,6 +652,10 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         fusedLocationClient.requestLocationUpdates(locationRequest,
                 locationCallback,
                 null /* Looper */)
+    }
+
+    private fun initialise() {
+        mDatabaseReferenceCounter = DBConection.db.reference.child("counter")
     }
 
 

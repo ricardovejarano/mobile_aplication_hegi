@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private var mDatabaseReferenceCounter: DatabaseReference? = null
     private var currentDate = ""
     private var routeDriver = ""
+    private var busAssigned = ""
     private var existDateInDatabase = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,7 +110,7 @@ class MainActivity : AppCompatActivity() {
                     if (existDateInDatabase) {
                         startActivity<OpenCVActivity>()
                     } else {
-                        val daily = Daily(routeDriver, 0, 0)
+                        val daily = Daily(routeDriver, busAssigned, 0, 0)
                         val mUser = DBConection.mAuth.currentUser
                         val mUserReference = mDatabaseReferenceCounter!!.child(mUser!!.uid+ "/" +currentDate)
                         mUserReference.setValue(daily)
@@ -140,6 +141,7 @@ class MainActivity : AppCompatActivity() {
                 mainTxtViewUserName.text = snapshot.child("name").value as String
                 driverRoute.text = snapshot.child("route").value as String
                 routeDriver = snapshot.child("route").value as String
+                busAssigned = snapshot.child("busAssigned").value as String
             }
             override fun onCancelled(databaseError: DatabaseError) {}
         })
