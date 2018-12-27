@@ -658,5 +658,10 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         mDatabaseReferenceCounter = DBConection.db.reference.child("counter")
     }
 
+    override fun onBackPressed() {
+          // nada
+
+    }
+
 
 }
