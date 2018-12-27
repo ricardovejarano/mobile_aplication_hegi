@@ -15,21 +15,18 @@ import org.jetbrains.anko.startActivity
 
 class SplashActivity : AppCompatActivity() {
 
-    private val timer = 2000
+    private val timer = 4000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         splashImgView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.splash_in))
-        splashTxtViewHegi.startAnimation(AnimationUtils.loadAnimation(this, R.anim.splash_in))
 
         Handler().postDelayed({
             splashImgView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.splash_out))
-            splashTxtViewHegi.startAnimation(AnimationUtils.loadAnimation(this, R.anim.splash_out))
             Handler().postDelayed({
                 splashImgView.visibility = View.GONE
-                splashTxtViewHegi.visibility = View.GONE
                 if (UserSession.isLogged) startActivity<MainActivity>()
                 else startActivity<LoginActivity>()
                 finish()
