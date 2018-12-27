@@ -9,12 +9,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import com.google.android.gms.location.*
 import com.jakewharton.rxbinding2.view.clicks
 import kotlinx.android.synthetic.main.activity_open_cv.*
 import opencv.hegi.countpeopleopencv.R
 import opencv.hegi.countpeopleopencv.data.model.PersonCoordinate
 import opencv.hegi.countpeopleopencv.ui.main.MainActivity
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
 import org.opencv.android.LoaderCallbackInterface
@@ -29,6 +31,16 @@ import java.util.ArrayList
 
 
 class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
+
+    // Variables para Geolocalización
+    private lateinit var locationCallback: LocationCallback
+    private lateinit var locationRequest: LocationRequest
+
+    // Location Variables
+    private var latitude = 0.0
+    private var longitude = 0.0
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     private val TAG = "OCVSample::Activity"
     private val FACE_RECT_COLOR = Scalar(0.0, 255.0, 0.0, 255.0)
     val JAVA_DETECTOR = 0
@@ -149,6 +161,21 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
 
         setContentView(R.layout.activity_open_cv)
 
+        // Se inicializa la instancia de FusedLocationProviderClient
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        // Este callback se ejecuta cada 5 segundos y reasigna las variables
+        // latitude y longitude para insertar en base de datos
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                locationResult ?: return
+                for (location in locationResult.locations){
+                    longitude = location.longitude
+                    latitude = location.latitude
+                    // toast(location.latitude.toString() + location.longitude.toString())
+                }
+            }
+        }
+
         mDetectorName = arrayOfNulls(2)
         mDetectorName[JAVA_DETECTOR] = "Java"
         personCoordinates = ArrayList()
@@ -160,6 +187,7 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
 
     public override fun onPause() {
         super.onPause()
+        stopLocationUpdates()
         if (mOpenCvCameraView != null)
             mOpenCvCameraView!!.disableView()
     }
@@ -180,6 +208,9 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
                 .subscribe {
                     startActivity<MainActivity>()
                 }
+
+        createLocationRequest()
+        startLocationUpdates()
     }
 
     public override fun onDestroy() {
@@ -528,6 +559,29 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
 
     fun onRecreateClick(v: View) {
         learn_frames = 0
+    }
+
+    // Detiene el loop de actualización de ubicación
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    // La variable locationRequest tiene los parametros de localización de prioridad
+    // y de tiempo de repetición de la captura de lat y lng
+    fun createLocationRequest() {
+        locationRequest = LocationRequest.create()?.apply {
+            interval = 5000
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }!!
+    }
+
+    // Loop que gestiona el callback de updateLocation
+    @SuppressLint("MissingPermission")
+    private fun startLocationUpdates() {
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback,
+                null /* Looper */)
     }
 
 
