@@ -43,9 +43,11 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
 
 
     private var mDatabaseReferenceCounter: DatabaseReference? = null
+    private var mDatabaseReferenceCountePassegers: DatabaseReference? = null
     private var currentDate = ""
     private var currentHour = ""
     private var totalCount = 0
+    private var totalCountAllPassegers = 0
     private var parcialCount = 0
 
     // Variables para Geolocalización
@@ -218,7 +220,6 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
 
         val mUser = DBConection.mAuth.currentUser
         val mUserReference = mDatabaseReferenceCounter?.child(mUser!!.uid + "/" + currentDate)
-        Log.d("ENTRA",mUserReference.toString())
         mUserReference?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 totalCount = snapshot.value("totalCount").toString().toInt()
@@ -228,6 +229,14 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
             override fun onCancelled(databaseError: DatabaseError) {}
         })
 
+
+        val mUserReference2 = mDatabaseReferenceCountePassegers?.child(currentDate)
+        mUserReference2?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                totalCountAllPassegers = snapshot.value("total").toString().toInt()
+            }
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
 
         if (!OpenCVLoader.initDebug()) {
             Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization")
@@ -591,9 +600,12 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         val mUser = DBConection.mAuth.currentUser
         val mUserReference = mDatabaseReferenceCounter!!.child(mUser!!.uid + "/" + currentDate + "/boardings")
         val mCountReference = mDatabaseReferenceCounter!!.child(mUser.uid + "/" + currentDate)
+        val mCountReferenceTotalPassegers = mDatabaseReferenceCountePassegers!!.child(currentDate)
         val tempCountParcial = mCountReference.child("parcialCount")
         val tempCountTotal = mCountReference.child("totalCount")
+        val tempCountTotalPassegers = mCountReferenceTotalPassegers.child("total")
         tempCountParcial.setValue(parcialCount + 1)
+        tempCountTotalPassegers.setValue(totalCountAllPassegers + 1)
         tempCountTotal.setValue(totalCount + 1)
         mUserReference.push().setValue(upCount)
     }
@@ -656,11 +668,11 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
 
     private fun initialise() {
         mDatabaseReferenceCounter = DBConection.db.reference.child("counter")
+        mDatabaseReferenceCountePassegers = DBConection.db.reference.child("countPassegers")
     }
 
     override fun onBackPressed() {
           // nada
-
     }
 
 

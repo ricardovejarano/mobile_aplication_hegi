@@ -21,6 +21,7 @@ import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.activity_main.*
 import opencv.hegi.countpeopleopencv.BR.urlImage
 import opencv.hegi.countpeopleopencv.R
+import opencv.hegi.countpeopleopencv.data.model.CountPassegers
 import opencv.hegi.countpeopleopencv.data.model.Daily
 import opencv.hegi.countpeopleopencv.data.preferences.UserSession
 import opencv.hegi.countpeopleopencv.data.singleton.DBConection
@@ -38,10 +39,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var mDatabaseReference: DatabaseReference? = null
     private var mDatabaseReferenceCounter: DatabaseReference? = null
+    private var mDatabaseReferenceCountePassegers: DatabaseReference? = null
     private var currentDate = ""
     private var routeDriver = ""
     private var busAssigned = ""
     private var existDateInDatabase = false
+    private var existCountInDatabase = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         getDate()
         initialise()
         checkExitPath()
+        checkExistCount()
         loadBluri()
         binding.urlImage = "http://gsiep.labc.usb.ve/wp-content/uploads/Headshots/u_abueno.jpg"
     }
@@ -107,14 +111,24 @@ class MainActivity : AppCompatActivity() {
 
         MainBtnStartCount.clicks()
                 .subscribe{
-                    if (existDateInDatabase) {
+                    if (existDateInDatabase && existCountInDatabase) {
                         startActivity<OpenCVActivity>()
                     } else {
-                        val daily = Daily(routeDriver, busAssigned, 0, 0)
-                        val mUser = DBConection.mAuth.currentUser
-                        val mUserReference = mDatabaseReferenceCounter!!.child(mUser!!.uid+ "/" +currentDate)
-                        mUserReference.setValue(daily)
+                        if(!existDateInDatabase) {
+                            val daily = Daily(routeDriver, busAssigned, 0, 0)
+                            val mUser = DBConection.mAuth.currentUser
+                            val mUserReference = mDatabaseReferenceCounter!!.child(mUser!!.uid+ "/" +currentDate)
+                            mUserReference.setValue(daily)
+                        }
+
+                        if(!existCountInDatabase) {
+                            val countP = CountPassegers(0)
+                            val mUserReference2 = mDatabaseReferenceCountePassegers!!.child(currentDate)
+                            mUserReference2.setValue(countP)
+                        }
+
                         startActivity<OpenCVActivity>()
+
                     }
                 }
     }
@@ -130,6 +144,7 @@ class MainActivity : AppCompatActivity() {
     private fun initialise() {
         mDatabaseReference = DBConection.db.reference.child("driver")
         mDatabaseReferenceCounter = DBConection.db.reference.child("counter")
+        mDatabaseReferenceCountePassegers = DBConection.db.reference.child("countPassegers")
     }
 
     override fun onStart() {
@@ -165,6 +180,24 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     existDateInDatabase = false
                     Log.i("counter", "No Existe")
+                }
+            }
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
+    private fun checkExistCount() {
+        val mUser = DBConection.mAuth?.currentUser
+        val mUserReference3 = mDatabaseReferenceCountePassegers?.child(currentDate)
+        mUserReference3?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val ghj = snapshot.value
+                if(snapshot.value != null) {
+                    existCountInDatabase = true
+                    Log.i("counting", "Existe")
+                } else {
+                    existCountInDatabase = false
+                    Log.i("counting", "No Existe")
                 }
             }
             override fun onCancelled(databaseError: DatabaseError) {}
