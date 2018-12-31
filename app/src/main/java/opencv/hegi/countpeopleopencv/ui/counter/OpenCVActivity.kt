@@ -3,6 +3,7 @@ package opencv.hegi.countpeopleopencv.ui.counter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -655,6 +656,15 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
 
     fun writeUp() {
         currentHour = Date().formatHour()
+        if(parcialCount + 1 == 20) {
+            var player = MediaPlayer.create(applicationContext, R.raw.alerprev)
+            player.start()
+        }
+
+        if(parcialCount + 1 > 20) {
+            var player2 = MediaPlayer.create(applicationContext, R.raw.alert)
+            player2.start()
+        }
         var upCount = Boardings(currentHour, true, parcialCount + 1, totalCount + 1, latitude, longitude)
         val mUser = DBConection.mAuth.currentUser
         val mUserReference = mDatabaseReferenceCounter!!.child(mUser!!.uid + "/" + currentDate + "/boardings")
