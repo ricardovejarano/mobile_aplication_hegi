@@ -78,6 +78,7 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
     // private MenuItem               mItemType;
 
     private var mRgba: Mat? = null
+    private var mRgbaTest: Mat? = null
     private var mGray: Mat? = null
     private var mRgba2: Mat? = null
     private var mGray2: Mat? = null
@@ -279,6 +280,7 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         mGray = Mat()
         mGray2 = Mat()
         mRgba = Mat()
+        mRgbaTest = Mat()
         mRgba2 = Mat()
     }
 
@@ -300,316 +302,334 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
             timerCounterRefresh()
         }
 
-        val x1 = limitZones * 11 / 2
-        val y1 = heigthResolution
-        val x2 = limitZones * 5 / 2
-        val y2 = heigthResolution
+        Imgproc.cvtColor(mRgba, mRgbaTest, Imgproc.COLOR_RGB2HSV, 1)
+        val lowerThreshold = Scalar(120.0, 100.0, 100.0) // Blue color – lower hsv values
+        val upperThreshold = Scalar(179.0, 255.0, 255.0) // Blue color – higher hsv values
+        Core.inRange(mRgbaTest, lowerThreshold, upperThreshold, mRgbaTest)
+        Imgproc.dilate(mRgbaTest, mRgbaTest, Mat())
+        val contours = ArrayList<MatOfPoint>()
+        val hierarchy = Mat()
+        Imgproc.findContours(mRgbaTest, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE)
+        Log.d("contornos", contours.size.toString())
+        val player = MediaPlayer.create(this, R.raw.camera_alert)
+
+        if (contours.size > 30) {
+
+            player.stop()
 
 
-        // Se dibujan las zonas de desición
-        Imgproc.line(mRgba, Point((limitZones * 1).toDouble(), 0.0), Point((limitZones * 1).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
-        Imgproc.line(mRgba, Point((limitZones * 2).toDouble(), 0.0), Point((limitZones * 2).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
-        Imgproc.line(mRgba, Point((limitZones * 3).toDouble(), 0.0), Point((limitZones * 3).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
-        Imgproc.line(mRgba, Point((limitZones * 4).toDouble(), 0.0), Point((limitZones * 4).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
-        Imgproc.line(mRgba, Point((limitZones * 5).toDouble(), 0.0), Point((limitZones * 5).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
-        Imgproc.line(mRgba, Point((limitZones * 6).toDouble(), 0.0), Point((limitZones * 6).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
-        Imgproc.line(mRgba, Point((limitZones * 7).toDouble(), 0.0), Point((limitZones * 7).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
-        // Se dibujan los dos límites de conteo
-        Imgproc.line(mRgba, Point(x1.toDouble(), 0.0), Point(x1.toDouble(), y1.toDouble()), Scalar(255.0, 0.0, 0.0), 3)
-        Imgproc.line(mRgba, Point(x2.toDouble(), 0.0), Point(x2.toDouble(), y2.toDouble()), Scalar(0.0, 255.0, 0.0), 3)
+            val x1 = limitZones * 11 / 2
+            val y1 = heigthResolution
+            val x2 = limitZones * 5 / 2
+            val y2 = heigthResolution
 
 
-        // =================  SECCIÓN DBD (Dibujo de datos)=> SE DIBUJAN LOS DATOS DE INTERÉS EN PANTALL ============================================//
-
-        Imgproc.putText(mRgba!!, "Contador total: $totalCount",
-                Point((limitZones * 6 + 10).toDouble(), 170.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(255.0, 255.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba!!, "Contador parcial: $parcialCount",
-                Point((limitZones * 6 + 10).toDouble(), 210.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(255.0, 255.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "Up: $counterUp",
-                Point(20.0, 60.0),
-                Core.FONT_HERSHEY_TRIPLEX, 1.8, Scalar(0.0, 255.0, 0.0,
-                255.0))
-        Imgproc.putText(mRgba, "Down: $counterDown",
-                Point((limitZones * 6 + 10).toDouble(), 60.0),
-                Core.FONT_HERSHEY_TRIPLEX, 1.8, Scalar(255.0, 0.0, 0.0,
-                255.0))
-        Imgproc.putText(mRgba, "Frames: $counterFrames",
-                Point(20.0, 130.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        // =====================CONTADORES DE ZONAS ===========================================//
-        Imgproc.putText(mRgba, "Zona1: $zone1",
-                Point(20.0, 170.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "Zona2: $zone2",
-                Point(20.0, 210.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "Zona3: $zone3",
-                Point(20.0, 250.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "Zona4: $zone4",
-                Point(20.0, 290.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "Zona5: $zone5",
-                Point(20.0, 330.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "Zona6: $zone6",
-                Point(20.0, 370.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "Zona7: $zone7",
-                Point(20.0, 410.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "Zona8: $zone8",
-                Point(20.0, 450.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "WIDTH: $widthRec",
-                Point(20.0, 490.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-
-        Imgproc.putText(mRgba, "REFRESH: $counterRefresh",
-                Point(20.0, 530.0),
-                Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
-                255.0))
-        //============================ FIN DE LA SECCIÓN DBD ==========================================================//
+            // Se dibujan las zonas de desición
+            Imgproc.line(mRgba, Point((limitZones * 1).toDouble(), 0.0), Point((limitZones * 1).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
+            Imgproc.line(mRgba, Point((limitZones * 2).toDouble(), 0.0), Point((limitZones * 2).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
+            Imgproc.line(mRgba, Point((limitZones * 3).toDouble(), 0.0), Point((limitZones * 3).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
+            Imgproc.line(mRgba, Point((limitZones * 4).toDouble(), 0.0), Point((limitZones * 4).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
+            Imgproc.line(mRgba, Point((limitZones * 5).toDouble(), 0.0), Point((limitZones * 5).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
+            Imgproc.line(mRgba, Point((limitZones * 6).toDouble(), 0.0), Point((limitZones * 6).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
+            Imgproc.line(mRgba, Point((limitZones * 7).toDouble(), 0.0), Point((limitZones * 7).toDouble(), y1.toDouble()), Scalar(255.0, 255.0, 0.0), 1)
+            // Se dibujan los dos límites de conteo
+            Imgproc.line(mRgba, Point(x1.toDouble(), 0.0), Point(x1.toDouble(), y1.toDouble()), Scalar(255.0, 0.0, 0.0), 3)
+            Imgproc.line(mRgba, Point(x2.toDouble(), 0.0), Point(x2.toDouble(), y2.toDouble()), Scalar(0.0, 255.0, 0.0), 3)
 
 
-        if (mAbsoluteFaceSize == 0) {
-            val height = mGray!!.rows()
-            if (Math.round(height * mRelativeFaceSize) > 0) {
-                mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize)
-            }
-        }
+            // =================  SECCIÓN DBD (Dibujo de datos)=> SE DIBUJAN LOS DATOS DE INTERÉS EN PANTALL ============================================//
 
-        val faces = MatOfRect()
-        val faces2 = MatOfRect()
-
-        // ================================= SECCIÓN DT (detección) ==========================================//
-        // SE DETECTA EL PERFIL IZQUIERDO POR MEDIO DEL INPUTFRAME mGray
-        if (mDetectorType == JAVA_DETECTOR) {
-            if (mJavaDetector != null)
-                mJavaDetector!!.detectMultiScale(mGray, faces, 1.1, 2, 2,
-                        Size(mAbsoluteFaceSize.toDouble(), mAbsoluteFaceSize.toDouble()), Size())
-        } else {
-            Log.e(TAG, "Detection method is not selected!")
-        }
-
-        // SE DETECTA EL PERFIL DERECHO POR MEDIO DEL INPUTFRAME mGray2
-        if (mDetectorType == JAVA_DETECTOR) {
-            if (mJavaDetector != null)
-                mJavaDetector!!.detectMultiScale(mGray2, faces2, 1.1, 2, 2,
-                        Size(mAbsoluteFaceSize.toDouble(), mAbsoluteFaceSize.toDouble()), Size())
-        } else {
-            Log.e(TAG, "Detection method is not selected!")
-        }
-
-
-        //============================ FIN DE LA SECCIÓN DT ====================================================//
-
-        // SE ALMACENAN LAS DETECCIÓNES EN UN ARRAY DE DIPO Rect[]
-        val facesArray = faces.toArray()    // IZQUIERDO
-        val facesArray2 = faces2.toArray()  // DERECHO
-
-
-        //================================== CICLO PARA EL PERFIL IZQUIERDO ====================================//
-        for (i in facesArray.indices) {
-            widthRec = facesArray[i].width
-            Imgproc.rectangle(mRgba!!, facesArray[i].tl(), facesArray[i].br(),
-                    FACE_RECT_COLOR, 3)
-            xCenter = ((facesArray[i].x + facesArray[i].width + facesArray[i].x) / 2).toDouble()
-            yCenter = ((facesArray[i].y + facesArray[i].y + facesArray[i].height) / 2).toDouble()
-            val center = Point(xCenter, yCenter)
-
-            Imgproc.circle(mRgba!!, center, 10, Scalar(255.0, 0.0, 0.0, 255.0), 3)
-
-            Imgproc.putText(mRgba!!, "[" + center.x + "," + center.y + "]",
-                    Point(center.x + 20, center.y + 20),
-                    Core.FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255.0, 255.0, 255.0,
+            Imgproc.putText(mRgba!!, "Contador total: $totalCount",
+                    Point((limitZones * 6 + 10).toDouble(), 170.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(255.0, 255.0, 255.0,
                     255.0))
 
-            // La variable myPersonCoordinate guarda las coordenadas X,Y por cada ciclo de detección
-            val myPersonCoordinate = PersonCoordinate()
+            Imgproc.putText(mRgba!!, "Contador parcial: $parcialCount",
+                    Point((limitZones * 6 + 10).toDouble(), 210.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(255.0, 255.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "Up: $counterUp",
+                    Point(20.0, 60.0),
+                    Core.FONT_HERSHEY_TRIPLEX, 1.8, Scalar(0.0, 255.0, 0.0,
+                    255.0))
+            Imgproc.putText(mRgba, "Down: $counterDown",
+                    Point((limitZones * 6 + 10).toDouble(), 60.0),
+                    Core.FONT_HERSHEY_TRIPLEX, 1.8, Scalar(255.0, 0.0, 0.0,
+                    255.0))
+            Imgproc.putText(mRgba, "Frames: $counterFrames",
+                    Point(20.0, 130.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            // =====================CONTADORES DE ZONAS ===========================================//
+            Imgproc.putText(mRgba, "Zona1: $zone1",
+                    Point(20.0, 170.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "Zona2: $zone2",
+                    Point(20.0, 210.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "Zona3: $zone3",
+                    Point(20.0, 250.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "Zona4: $zone4",
+                    Point(20.0, 290.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "Zona5: $zone5",
+                    Point(20.0, 330.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "Zona6: $zone6",
+                    Point(20.0, 370.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "Zona7: $zone7",
+                    Point(20.0, 410.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "Zona8: $zone8",
+                    Point(20.0, 450.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "WIDTH: $widthRec",
+                    Point(20.0, 490.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+
+            Imgproc.putText(mRgba, "REFRESH: $counterRefresh",
+                    Point(20.0, 530.0),
+                    Core.FONT_HERSHEY_DUPLEX, 1.0, Scalar(0.0, 0.0, 255.0,
+                    255.0))
+            //============================ FIN DE LA SECCIÓN DBD ==========================================================//
 
 
-            myPersonCoordinate.horizontal = facesArray[i].x
-            myPersonCoordinate.vertical = facesArray[i].y
+            if (mAbsoluteFaceSize == 0) {
+                val height = mGray!!.rows()
+                if (Math.round(height * mRelativeFaceSize) > 0) {
+                    mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize)
+                }
+            }
 
+            val faces = MatOfRect()
+            val faces2 = MatOfRect()
 
-            if (personTestCoordinates.size == 0 || canAdd == true) {
-                personTestCoordinates.add(myPersonCoordinate)
-                canAdd = false
+            // ================================= SECCIÓN DT (detección) ==========================================//
+            // SE DETECTA EL PERFIL IZQUIERDO POR MEDIO DEL INPUTFRAME mGray
+            if (mDetectorType == JAVA_DETECTOR) {
+                if (mJavaDetector != null)
+                    mJavaDetector!!.detectMultiScale(mGray, faces, 1.1, 2, 2,
+                            Size(mAbsoluteFaceSize.toDouble(), mAbsoluteFaceSize.toDouble()), Size())
             } else {
-                var lastPosition = personTestCoordinates.size - 1
+                Log.e(TAG, "Detection method is not selected!")
+            }
 
-                val lastVertical = personTestCoordinates[lastPosition].vertical  // last value of the horizontal coordinate
-                val lastHorizontal = personTestCoordinates[lastPosition].horizontal // last value of the vertical coordinate
+            // SE DETECTA EL PERFIL DERECHO POR MEDIO DEL INPUTFRAME mGray2
+            if (mDetectorType == JAVA_DETECTOR) {
+                if (mJavaDetector != null)
+                    mJavaDetector!!.detectMultiScale(mGray2, faces2, 1.1, 2, 2,
+                            Size(mAbsoluteFaceSize.toDouble(), mAbsoluteFaceSize.toDouble()), Size())
+            } else {
+                Log.e(TAG, "Detection method is not selected!")
+            }
 
-                val actualVertical = myPersonCoordinate.vertical
-                val actualHorizontal = myPersonCoordinate.horizontal
 
-                // Se verifica que la detección actual está cerca por lo menos a  una distancia de la variable distance
-                val distance = 2*limitZones
-                if (actualVertical >= lastVertical - distance && actualVertical <= lastVertical + distance &&
-                        actualHorizontal >= lastHorizontal - distance && actualHorizontal <= lastHorizontal + distance) {
+            //============================ FIN DE LA SECCIÓN DT ====================================================//
 
-                    if (actualHorizontal > limitZones * 7) {
-                        zone8 = 1
-                    }
-                    if (actualHorizontal > limitZones * 6 && actualHorizontal < limitZones * 7) {
-                        zone7 = 1
-                    }
-                    if (actualHorizontal > limitZones * 5 && actualHorizontal < limitZones * 6) {
-                        zone6 = 1
-                    }
-                    if (actualHorizontal > limitZones * 4 && actualHorizontal < limitZones * 5) {
-                        zone5 = 1
-                    }
-                    if (actualHorizontal > limitZones * 3 && actualHorizontal < limitZones * 4) {
-                        zone4 = 1
-                    }
-                    if (actualHorizontal > limitZones * 2 && actualHorizontal < limitZones * 3) {
-                        zone3 = 1
-                    }
-                    if (actualHorizontal > limitZones && actualHorizontal < limitZones * 2) {
-                        zone2 = 1
-                    }
-                    if (actualHorizontal < limitZones) {
-                        zone1 = 1
-                    }
-                    counterFrames++
+            // SE ALMACENAN LAS DETECCIÓNES EN UN ARRAY DE DIPO Rect[]
+            val facesArray = faces.toArray()    // IZQUIERDO
+            val facesArray2 = faces2.toArray()  // DERECHO
+
+
+            //================================== CICLO PARA EL PERFIL IZQUIERDO ====================================//
+            for (i in facesArray.indices) {
+                widthRec = facesArray[i].width
+                Imgproc.rectangle(mRgba!!, facesArray[i].tl(), facesArray[i].br(),
+                        FACE_RECT_COLOR, 3)
+                xCenter = ((facesArray[i].x + facesArray[i].width + facesArray[i].x) / 2).toDouble()
+                yCenter = ((facesArray[i].y + facesArray[i].y + facesArray[i].height) / 2).toDouble()
+                val center = Point(xCenter, yCenter)
+
+                Imgproc.circle(mRgba!!, center, 10, Scalar(255.0, 0.0, 0.0, 255.0), 3)
+
+                Imgproc.putText(mRgba!!, "[" + center.x + "," + center.y + "]",
+                        Point(center.x + 20, center.y + 20),
+                        Core.FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255.0, 255.0, 255.0,
+                        255.0))
+
+                // La variable myPersonCoordinate guarda las coordenadas X,Y por cada ciclo de detección
+                val myPersonCoordinate = PersonCoordinate()
+
+
+                myPersonCoordinate.horizontal = facesArray[i].x
+                myPersonCoordinate.vertical = facesArray[i].y
+
+
+                if (personTestCoordinates.size == 0 || canAdd == true) {
                     personTestCoordinates.add(myPersonCoordinate)
-                    if (actualHorizontal < (limitZones * 5) / 2) {
-                        evaluateUpPassager()
-                        // function to evaluate
-                    }
-                    widthRecSaved = widthRec
+                    canAdd = false
                 } else {
-                    counterRefresh++
-                    if (counterRefresh > 5) {
-                        personTestCoordinates.clear()
-                        counterRefresh = 0
-                        counterFrames = 0
-                        clearZones()
+                    var lastPosition = personTestCoordinates.size - 1
+
+                    val lastVertical = personTestCoordinates[lastPosition].vertical  // last value of the horizontal coordinate
+                    val lastHorizontal = personTestCoordinates[lastPosition].horizontal // last value of the vertical coordinate
+
+                    val actualVertical = myPersonCoordinate.vertical
+                    val actualHorizontal = myPersonCoordinate.horizontal
+
+                    // Se verifica que la detección actual está cerca por lo menos a  una distancia de la variable distance
+                    val distance = 2 * limitZones
+                    if (actualVertical >= lastVertical - distance && actualVertical <= lastVertical + distance &&
+                            actualHorizontal >= lastHorizontal - distance && actualHorizontal <= lastHorizontal + distance) {
+
+                        if (actualHorizontal > limitZones * 7) {
+                            zone8 = 1
+                        }
+                        if (actualHorizontal > limitZones * 6 && actualHorizontal < limitZones * 7) {
+                            zone7 = 1
+                        }
+                        if (actualHorizontal > limitZones * 5 && actualHorizontal < limitZones * 6) {
+                            zone6 = 1
+                        }
+                        if (actualHorizontal > limitZones * 4 && actualHorizontal < limitZones * 5) {
+                            zone5 = 1
+                        }
+                        if (actualHorizontal > limitZones * 3 && actualHorizontal < limitZones * 4) {
+                            zone4 = 1
+                        }
+                        if (actualHorizontal > limitZones * 2 && actualHorizontal < limitZones * 3) {
+                            zone3 = 1
+                        }
+                        if (actualHorizontal > limitZones && actualHorizontal < limitZones * 2) {
+                            zone2 = 1
+                        }
+                        if (actualHorizontal < limitZones) {
+                            zone1 = 1
+                        }
+                        counterFrames++
+                        personTestCoordinates.add(myPersonCoordinate)
+                        if (actualHorizontal < (limitZones * 5) / 2) {
+                            evaluateUpPassager()
+                            // function to evaluate
+                        }
+                        widthRecSaved = widthRec
+                    } else {
+                        counterRefresh++
+                        if (counterRefresh > 5) {
+                            personTestCoordinates.clear()
+                            counterRefresh = 0
+                            counterFrames = 0
+                            clearZones()
+                        }
                     }
                 }
             }
-        }
 
 
-
-    //=============================== FIN DE SECCIÓN PERFIL IZQUIERDO =========================================//
-
-
-    //================================== CICLO PARA EL PERFIL DERECHO ====================================//
-        for (i in facesArray2.indices) {
-            val xx = widthResolution - facesArray2[i].x
-            widthRec = facesArray2[i].width
-
-            val xbien = Math.abs(xx).toDouble() // El valor absoluto permite el correcto seguimiento de los frames
-            val tlAbs = Point(Math.abs(widthResolution - facesArray2[i].tl().x), facesArray2[i].tl().y)
-            val brAbs = Point(Math.abs(widthResolution - facesArray2[i].br().x), facesArray2[i].br().y)
-            Imgproc.rectangle(mRgba!!, tlAbs, brAbs,
-                    FACE_RECT_COLOR, 3)
-            xCenter = xbien - facesArray2[i].width / 2
-            yCenter = ((facesArray2[i].y + facesArray2[i].y + facesArray2[i].height) / 2).toDouble()
-            val center = Point(xCenter, yCenter)
-
-            Imgproc.circle(mRgba!!, center, 10, Scalar(255.0, 0.0, 0.0, 255.0), 3)
-
-            Imgproc.putText(mRgba!!, "[" + center.x + "," + center.y + "]",
-                    Point(center.x + 20, center.y + 20),
-                    Core.FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255.0, 255.0, 255.0,
-                    255.0))
-
-            // La variable myPersonCoordinate guarda las coordenadas X,Y por cada ciclo de detección
-            val myPersonCoordinate = PersonCoordinate()
+            //=============================== FIN DE SECCIÓN PERFIL IZQUIERDO =========================================//
 
 
-            myPersonCoordinate.horizontal =xx
-            myPersonCoordinate.vertical = facesArray2[i].y
+            //================================== CICLO PARA EL PERFIL DERECHO ====================================//
+            for (i in facesArray2.indices) {
+                val xx = widthResolution - facesArray2[i].x
+                widthRec = facesArray2[i].width
+
+                val xbien = Math.abs(xx).toDouble() // El valor absoluto permite el correcto seguimiento de los frames
+                val tlAbs = Point(Math.abs(widthResolution - facesArray2[i].tl().x), facesArray2[i].tl().y)
+                val brAbs = Point(Math.abs(widthResolution - facesArray2[i].br().x), facesArray2[i].br().y)
+                Imgproc.rectangle(mRgba!!, tlAbs, brAbs,
+                        FACE_RECT_COLOR, 3)
+                xCenter = xbien - facesArray2[i].width / 2
+                yCenter = ((facesArray2[i].y + facesArray2[i].y + facesArray2[i].height) / 2).toDouble()
+                val center = Point(xCenter, yCenter)
+
+                Imgproc.circle(mRgba!!, center, 10, Scalar(255.0, 0.0, 0.0, 255.0), 3)
+
+                Imgproc.putText(mRgba!!, "[" + center.x + "," + center.y + "]",
+                        Point(center.x + 20, center.y + 20),
+                        Core.FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255.0, 255.0, 255.0,
+                        255.0))
+
+                // La variable myPersonCoordinate guarda las coordenadas X,Y por cada ciclo de detección
+                val myPersonCoordinate = PersonCoordinate()
 
 
-            if (personTestCoordinates.size == 0 || canAdd == true) {
-                personTestCoordinates.add(myPersonCoordinate)
-                canAdd = false
-            } else {
-                var lastPosition = personTestCoordinates.size - 1
+                myPersonCoordinate.horizontal = xx
+                myPersonCoordinate.vertical = facesArray2[i].y
 
-                val lastVertical = personTestCoordinates[lastPosition].vertical  // last value of the horizontal coordinate
-                val lastHorizontal = personTestCoordinates[lastPosition].horizontal // last value of the vertical coordinate
 
-                val actualVertical = myPersonCoordinate.vertical
-                val actualHorizontal = myPersonCoordinate.horizontal
-
-                // Se verifica que la detección actual está cerca por lo menos a  una distancia de la variable distance
-                val distance = 2*limitZones
-                if (actualVertical >= lastVertical - distance && actualVertical <= lastVertical + distance &&
-                        actualHorizontal >= lastHorizontal - distance && actualHorizontal <= lastHorizontal + distance) {
-
-                    if (actualHorizontal > limitZones * 7) {
-                        zone8 = 1
-                    }
-                    if (actualHorizontal > limitZones * 6 && actualHorizontal < limitZones * 7) {
-                        zone7 = 1
-                    }
-                    if (actualHorizontal > limitZones * 5 && actualHorizontal < limitZones * 6) {
-                        zone6 = 1
-                    }
-                    if (actualHorizontal > limitZones * 4 && actualHorizontal < limitZones * 5) {
-                        zone5 = 1
-                    }
-                    if (actualHorizontal > limitZones * 3 && actualHorizontal < limitZones * 4) {
-                        zone4 = 1
-                    }
-                    if (actualHorizontal > limitZones * 2 && actualHorizontal < limitZones * 3) {
-                        zone3 = 1
-                    }
-                    if (actualHorizontal > limitZones && actualHorizontal < limitZones * 2) {
-                        zone2 = 1
-                    }
-                    if (actualHorizontal < limitZones) {
-                        zone1 = 1
-                    }
-                    counterFrames++
+                if (personTestCoordinates.size == 0 || canAdd == true) {
                     personTestCoordinates.add(myPersonCoordinate)
-                    if (actualHorizontal < (limitZones * 5) / 2) {
-                        evaluateDownPassager()
-                        // function to evaluate
-                    }
-                    widthRecSaved = widthRec
+                    canAdd = false
                 } else {
-                    counterRefresh++
-                    if (counterRefresh > 5) {
-                        personTestCoordinates.clear()
-                        counterRefresh = 0
-                        counterFrames = 0
-                        clearZones()
+                    var lastPosition = personTestCoordinates.size - 1
+
+                    val lastVertical = personTestCoordinates[lastPosition].vertical  // last value of the horizontal coordinate
+                    val lastHorizontal = personTestCoordinates[lastPosition].horizontal // last value of the vertical coordinate
+
+                    val actualVertical = myPersonCoordinate.vertical
+                    val actualHorizontal = myPersonCoordinate.horizontal
+
+                    // Se verifica que la detección actual está cerca por lo menos a  una distancia de la variable distance
+                    val distance = 2 * limitZones
+                    if (actualVertical >= lastVertical - distance && actualVertical <= lastVertical + distance &&
+                            actualHorizontal >= lastHorizontal - distance && actualHorizontal <= lastHorizontal + distance) {
+
+                        if (actualHorizontal > limitZones * 7) {
+                            zone8 = 1
+                        }
+                        if (actualHorizontal > limitZones * 6 && actualHorizontal < limitZones * 7) {
+                            zone7 = 1
+                        }
+                        if (actualHorizontal > limitZones * 5 && actualHorizontal < limitZones * 6) {
+                            zone6 = 1
+                        }
+                        if (actualHorizontal > limitZones * 4 && actualHorizontal < limitZones * 5) {
+                            zone5 = 1
+                        }
+                        if (actualHorizontal > limitZones * 3 && actualHorizontal < limitZones * 4) {
+                            zone4 = 1
+                        }
+                        if (actualHorizontal > limitZones * 2 && actualHorizontal < limitZones * 3) {
+                            zone3 = 1
+                        }
+                        if (actualHorizontal > limitZones && actualHorizontal < limitZones * 2) {
+                            zone2 = 1
+                        }
+                        if (actualHorizontal < limitZones) {
+                            zone1 = 1
+                        }
+                        counterFrames++
+                        personTestCoordinates.add(myPersonCoordinate)
+                        if (actualHorizontal < (limitZones * 5) / 2) {
+                            evaluateDownPassager()
+                            // function to evaluate
+                        }
+                        widthRecSaved = widthRec
+                    } else {
+                        counterRefresh++
+                        if (counterRefresh > 5) {
+                            personTestCoordinates.clear()
+                            counterRefresh = 0
+                            counterFrames = 0
+                            clearZones()
+                        }
                     }
                 }
             }
+        } else {
+            player.start()
         }
         //=============================== FIN DE SECCIÓN PERFIL DERECHO =========================================//
         return mRgba
