@@ -120,6 +120,7 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
     private var widthResolution = 0;
     private var heigthResolution = 0;
     private var limitZones = 0;
+    private var counterObstruction = 0
 
     private var widthRec = 0
     private var widthRecSaved = 0
@@ -313,9 +314,10 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         Log.d("contornos", contours.size.toString())
         val player = MediaPlayer.create(this, R.raw.camera_alert)
 
-        if (contours.size > 30) {
+        if (contours.size > 0) {
 
             player.stop()
+            counterObstruction = 0
 
 
             val x1 = limitZones * 11 / 2
@@ -629,7 +631,10 @@ class OpenCVActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
                 }
             }
         } else {
-            player.start()
+            counterObstruction++
+            if (counterObstruction > 5) {
+                player.start()
+            }
         }
         //=============================== FIN DE SECCIÓN PERFIL DERECHO =========================================//
         return mRgba
